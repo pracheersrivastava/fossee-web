@@ -17,6 +17,7 @@ from .widgets import (
     Header, Sidebar, MainContent, ScreenPlaceholder,
     CSVUpload, SummaryScreen
 )
+from .charts import AnalysisCharts
 from .core.tokens import LAYOUT_MIN_CONTENT_WIDTH, LAYOUT_HEADER_HEIGHT
 
 
@@ -28,7 +29,6 @@ PAGE_TITLES = {
 }
 
 SCREEN_PLACEHOLDERS = {
-    "analysis": "Charts and analysis will appear here.",
     "history": "Analysis history table will appear here.",
 }
 
@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         self._uploaded_data: Optional[Dict[str, Any]] = None
         self._csv_upload: Optional[CSVUpload] = None
         self._summary_screen: Optional[SummaryScreen] = None
+        self._analysis_charts: Optional[AnalysisCharts] = None
         self._setup_window()
         self._setup_ui()
         self._connect_signals()
@@ -106,6 +107,8 @@ class MainWindow(QMainWindow):
             self._render_upload_screen()
         elif screen_id == "summary":
             self._render_summary_screen()
+        elif screen_id == "analysis":
+            self._render_analysis_screen()
         else:
             placeholder_text = SCREEN_PLACEHOLDERS.get(screen_id, "")
             placeholder = ScreenPlaceholder(placeholder_text)
@@ -133,6 +136,16 @@ class MainWindow(QMainWindow):
             self._summary_screen.set_data(self._uploaded_data)
         
         self._main_content.set_content(self._summary_screen)
+
+    def _render_analysis_screen(self):
+        """Render the analysis charts screen."""
+        self._analysis_charts = AnalysisCharts()
+        
+        # Set data if available
+        if self._uploaded_data:
+            self._analysis_charts.set_data(self._uploaded_data)
+        
+        self._main_content.set_content(self._analysis_charts)
 
     def _on_upload_complete(self, data: Dict[str, Any]):
         """Handle successful CSV upload."""

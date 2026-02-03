@@ -53,15 +53,16 @@ Building a hybrid Web + Desktop application following `design.md` specifications
 | Action Buttons | ✅ | ✅ | View Charts, Export, Upload New |
 | Summary Screen | ✅ `SummaryScreen.jsx` | ✅ `summary_screen.py` | Full integration |
 
-### Screen 3: Charts (React Only - Current Sprint)
+### Screen 3: Charts
 
 | Task | Web (React) | Desktop (PyQt5) | Notes |
 |------|-------------|-----------------|-------|
-| Chart.js config | ✅ `chartConfig.js` | ❌ | Base options, colors |
-| Equipment Distribution (Bar) | ✅ | ❌ | Violet, no borders |
-| Temperature vs Equipment (Line) | ✅ | ❌ | Amber with fill |
-| Pressure Distribution (Bar) | ✅ | ❌ | Crimson, no borders |
-| Charts Grid | ✅ `Charts.jsx` | ❌ | Responsive layout |
+| Chart config | ✅ `chartConfig.js` | ✅ `chart_config.py` | Base options, colors |
+| Equipment Distribution (Bar) | ✅ | ✅ | Violet (#8B5CF6), no borders |
+| Temperature vs Equipment (Line) | ✅ | ✅ | Amber (#F59E0B) with fill |
+| Pressure Distribution (Bar) | ✅ | ✅ | Crimson (#EF4444), no borders |
+| Charts Grid/Layout | ✅ `Charts.jsx` | ✅ `charts.py` | Responsive layout |
+| Main window integration | ✅ | ✅ | AnalysisCharts screen |
 
 ---
 
@@ -72,16 +73,6 @@ None currently.
 ---
 
 ## ❌ REMAINING TASKS
-
-### Screen 3: Charts (Desktop)
-
-| Task | Priority | Notes |
-|------|----------|-------|
-| Matplotlib config | High | Match Chart.js tokens |
-| Equipment Distribution (Bar) | High | Use `COLOR_EQUIPMENT` |
-| Temperature vs Equipment (Line) | High | Use `COLOR_TEMPERATURE` |
-| Pressure Distribution (Bar) | High | Use `COLOR_PRESSURE` |
-| Charts layout widget | High | Integrate with MainContent |
 
 ### Screen 4: History
 
@@ -169,14 +160,18 @@ CHEM•VIZ Design System/
 │   │   └── tokens.py           # Design tokens
 │   ├── styles/
 │   │   └── theme.qss           # QSS stylesheet
-│   └── widgets/
+│   ├── widgets/
+│   │   ├── __init__.py
+│   │   ├── header.py
+│   │   ├── sidebar.py
+│   │   ├── main_content.py
+│   │   ├── csv_upload.py
+│   │   ├── kpi_cards.py
+│   │   └── summary_screen.py
+│   └── charts/
 │       ├── __init__.py
-│       ├── header.py
-│       ├── sidebar.py
-│       ├── main_content.py
-│       ├── csv_upload.py
-│       ├── kpi_cards.py
-│       └── summary_screen.py
+│       ├── chart_config.py     # Matplotlib configurations
+│       └── charts.py           # Chart widgets
 ```
 
 ---
@@ -212,17 +207,18 @@ All implementations MUST follow `design.md`:
 | feat: CSV upload PyQt5 | Desktop upload matching React |
 | feat: KPI cards React | Summary KPIs + SummaryScreen |
 | feat: add PyQt5 summary KPI cards and summary screen | Desktop KPIs |
-| feat: add Chart.js charts | React charts (current) |
+| feat: add Chart.js charts | React charts |
+| feat: add Matplotlib charts | PyQt5 charts matching React (current) |
 
 ---
 
 ## Next Steps for AI Dev
 
-1. **Integrate Charts into App.jsx** - Wire AnalysisCharts to analysis screen
-2. **PyQt5 Charts** - Matplotlib implementation matching React
-3. **History Screen** - Table component with data persistence
-4. **Data Flow** - Connect CSV parsing to real chart data
-5. **Export Features** - PDF report generation
+1. **History Screen** - Table component with data persistence (Both platforms)
+2. **Data Flow** - Connect CSV parsing to real chart data
+3. **Export Features** - PDF report generation
+4. **Accessibility** - Keyboard navigation, focus indicators
+5. **Polish** - Loading states, empty states, error boundaries
 
 ---
 

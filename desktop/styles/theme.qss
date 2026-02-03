@@ -562,3 +562,13 @@ QLabel#kpiLabel {
 QWidget#kpiGrid {
     background-color: transparent;
 }
+
+/* ===================
+   CHART CARDS
+   Per design.md Section 5.3 & 5.5
+   =================== */
+QFrame#chartCard {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    min-height: 320px;
+}
