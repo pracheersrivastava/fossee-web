@@ -13,7 +13,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from .widgets import Header, Sidebar, MainContent, ScreenPlaceholder, CSVUpload
+from .widgets import (
+    Header, Sidebar, MainContent, ScreenPlaceholder,
+    CSVUpload, SummaryScreen
+)
 from .core.tokens import LAYOUT_MIN_CONTENT_WIDTH, LAYOUT_HEADER_HEIGHT
 
 
@@ -25,7 +28,6 @@ PAGE_TITLES = {
 }
 
 SCREEN_PLACEHOLDERS = {
-    "summary": "Data summary and KPIs will appear here.",
     "analysis": "Charts and analysis will appear here.",
     "history": "Analysis history table will appear here.",
 }
@@ -39,6 +41,7 @@ class MainWindow(QMainWindow):
         self._current_screen = "upload"
         self._uploaded_data: Optional[Dict[str, Any]] = None
         self._csv_upload: Optional[CSVUpload] = None
+        self._summary_screen: Optional[SummaryScreen] = None
         self._setup_window()
         self._setup_ui()
         self._connect_signals()
@@ -101,6 +104,8 @@ class MainWindow(QMainWindow):
         # Render screen content
         if screen_id == "upload":
             self._render_upload_screen()
+        elif screen_id == "summary":
+            self._render_summary_screen()
         else:
             placeholder_text = SCREEN_PLACEHOLDERS.get(screen_id, "")
             placeholder = ScreenPlaceholder(placeholder_text)
@@ -113,9 +118,27 @@ class MainWindow(QMainWindow):
         self._csv_upload.upload_cleared.connect(self._on_upload_cleared)
         self._main_content.set_content(self._csv_upload)
 
+    def _render_summary_screen(self):
+        """Render the summary screen."""
+        self._summary_screen = SummaryScreen()
+        self._summary_screen.viewChartsClicked.connect(
+            lambda: self._navigate_to("analysis")
+        )
+        self._summary_screen.uploadNewClicked.connect(
+            lambda: self._navigate_to("upload")
+        )
+        
+        # Set data if available
+        if self._uploaded_data:
+            self._summary_screen.set_data(self._uploaded_data)
+        
+        self._main_content.set_content(self._summary_screen)
+
     def _on_upload_complete(self, data: Dict[str, Any]):
         """Handle successful CSV upload."""
         self._uploaded_data = data
+        # Auto-navigate to summary
+        self._navigate_to("summary")
 
     def _on_upload_cleared(self):
         """Handle upload cleared."""
