@@ -1,0 +1,129 @@
+/**
+ * FOSSEE Scientific Analytics UI - Design Tokens
+ * Extracted from design.md v1.0
+ * DO NOT MODIFY - All values must match design.md exactly
+ */
+
+:root {
+  /* ===================
+     COLORS - Core Brand
+     =================== */
+  --color-deep-indigo: #1E2A38;      /* Primary Text / Header */
+  --color-academic-blue: #2F80ED;    /* Primary Action */
+  --color-slate-gray: #6B7280;       /* Secondary Text */
+  --color-off-white: #F8FAFC;        /* Background */
+  --color-pure-white: #FFFFFF;       /* Surface */
+
+  /* ===================
+     COLORS - Data Visualization
+     =================== */
+  --color-flowrate: #14B8A6;         /* Teal */
+  --color-temperature: #F59E0B;      /* Amber */
+  --color-pressure: #EF4444;         /* Crimson */
+  --color-equipment: #8B5CF6;        /* Muted Violet */
+
+  /* ===================
+     COLORS - Status
+     =================== */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #DC2626;
+  --color-info: #3B82F6;
+
+  /* ===================
+     COLORS - UI Elements
+     =================== */
+  --color-border: #CBD5E1;
+  --color-border-hover: #2F80ED;
+  --color-table-header: #F1F5F9;
+  --color-table-zebra: #FAFAFA;
+  --color-gridline: #E5E7EB;
+  --color-tooltip-bg: rgba(30, 42, 56, 0.9);
+
+  /* ===================
+     TYPOGRAPHY - Fonts
+     =================== */
+  --font-primary: 'Inter', 'Roboto', 'Arial', sans-serif;
+  --font-fallback: 'Roboto', 'Arial', sans-serif;
+
+  /* ===================
+     TYPOGRAPHY - Sizes
+     =================== */
+  --font-size-h1: 24px;
+  --font-size-h2: 18px;
+  --font-size-h3: 16px;
+  --font-size-body: 14px;
+  --font-size-table: 13px;
+  --font-size-caption: 12px;
+  --font-size-meta: 11px;
+
+  /* ===================
+     TYPOGRAPHY - Weights
+     =================== */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+
+  /* ===================
+     TYPOGRAPHY - Line Heights
+     =================== */
+  --line-height-h1: 32px;
+  --line-height-h2: 26px;
+  --line-height-h3: 24px;
+  --line-height-body: 22px;
+  --line-height-table: 20px;
+  --line-height-caption: 18px;
+  --line-height-meta: 16px;
+
+  /* ===================
+     SPACING
+     Base unit: 8px
+     =================== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* ===================
+     LAYOUT
+     =================== */
+  --layout-max-width: 1200px;
+  --layout-columns: 12;
+  --layout-gutter: 24px;
+  --layout-sidebar-width: 240px;
+  --layout-min-content-width: 960px;
+  --layout-header-height: 56px;
+
+  /* ===================
+     COMPONENTS - Buttons
+     =================== */
+  --button-height: 40px;
+  --button-radius: 6px;
+  --button-font-size: 14px;
+
+  /* ===================
+     COMPONENTS - Cards
+     =================== */
+  --card-radius: 8px;
+  --card-padding: 16px;
+  --card-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+
+  /* ===================
+     COMPONENTS - Tables
+     =================== */
+  --table-row-height: 44px;
+
+  /* ===================
+     COMPONENTS - Upload Zone
+     =================== */
+  --upload-border-width: 2px;
+  --upload-radius: 8px;
+
+  /* ===================
+     MOTION
+     =================== */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+}

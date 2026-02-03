@@ -1,0 +1,109 @@
+/**
+ * Sidebar Styles
+ * FOSSEE Scientific Analytics UI
+ */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: var(--layout-sidebar-width);
+  height: calc(100vh - var(--layout-header-height));
+  background-color: var(--color-pure-white);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
+}
+
+/* ===================
+   Navigation
+   =================== */
+.sidebar__nav {
+  padding: var(--space-md) 0;
+}
+
+.sidebar__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  padding: var(--space-sm) var(--space-lg);
+  background: transparent;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-slate-gray);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast),
+              color var(--transition-fast);
+}
+
+.sidebar__nav-item:hover {
+  background-color: var(--color-off-white);
+  color: var(--color-deep-indigo);
+}
+
+.sidebar__nav-item--active {
+  background-color: var(--color-off-white);
+  color: var(--color-academic-blue);
+  font-weight: var(--font-weight-medium);
+  border-left: 3px solid var(--color-academic-blue);
+  padding-left: calc(var(--space-lg) - 3px);
+}
+
+.sidebar__nav-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar__nav-label {
+  flex: 1;
+}
+
+/* ===================
+   History Section
+   =================== */
+.sidebar__history {
+  flex: 1;
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.sidebar__history-title {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-sm);
+}
+
+.sidebar__history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar__history-empty {
+  color: var(--color-slate-gray);
+  font-style: italic;
+}
+
+/* ===================
+   Footer
+   =================== */
+.sidebar__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--color-border);
+  color: var(--color-slate-gray);
+}

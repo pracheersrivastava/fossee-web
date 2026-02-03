@@ -1,0 +1,46 @@
+/**
+ * Header Styles
+ * FOSSEE Scientific Analytics UI
+ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--layout-header-height);
+  padding: 0 var(--space-lg);
+  background-color: var(--color-deep-indigo);
+  color: var(--color-pure-white);
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header__logo {
+  font-size: 24px;
+  color: var(--color-academic-blue);
+}
+
+.header__title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-h2);
+  color: var(--color-pure-white);
+  letter-spacing: 0.5px;
+}
+
+.header__context {
+  display: flex;
+  align-items: center;
+}
+
+.header__fossee {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}

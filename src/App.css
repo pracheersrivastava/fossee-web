@@ -1,0 +1,33 @@
+/**
+ * App Styles
+ * FOSSEE Scientific Analytics UI
+ */
+
+@import './styles/global.css';
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: var(--layout-min-content-width);
+}
+
+.app__body {
+  display: flex;
+  flex: 1;
+}
+
+/* ===================
+   Screen Placeholder
+   (temporary - remove when implementing screens)
+   =================== */
+.screen-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: var(--space-xl);
+  background-color: var(--color-pure-white);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--card-radius);
+}

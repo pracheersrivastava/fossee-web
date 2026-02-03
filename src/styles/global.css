@@ -1,0 +1,133 @@
+/**
+ * FOSSEE Scientific Analytics UI - Global Styles
+ * Base reset and typography from design.md
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import './tokens.css';
+
+/* ===================
+   RESET
+   =================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-deep-indigo);
+  background-color: var(--color-off-white);
+}
+
+/* ===================
+   TYPOGRAPHY
+   =================== */
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-h1);
+  color: var(--color-deep-indigo);
+  margin: 0;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-h2);
+  color: var(--color-deep-indigo);
+  margin: 0;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-h3);
+  color: var(--color-deep-indigo);
+  margin: 0;
+}
+
+p {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-body);
+  color: var(--color-deep-indigo);
+  margin: 0;
+}
+
+/* Caption text class */
+.caption {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-caption);
+  color: var(--color-slate-gray);
+}
+
+/* Meta text class */
+.meta {
+  font-size: var(--font-size-meta);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-meta);
+  color: var(--color-slate-gray);
+}
+
+/* Secondary text */
+.text-secondary {
+  color: var(--color-slate-gray);
+}
+
+/* ===================
+   LINKS
+   =================== */
+a {
+  color: var(--color-academic-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===================
+   BUTTONS - Base
+   =================== */
+button {
+  font-family: var(--font-primary);
+  font-size: var(--button-font-size);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-academic-blue);
+  outline-offset: 2px;
+}
+
+/* ===================
+   UTILITIES
+   =================== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -1,0 +1,31 @@
+/**
+ * MainContent Styles
+ * FOSSEE Scientific Analytics UI
+ */
+
+.main-content {
+  flex: 1;
+  height: calc(100vh - var(--layout-header-height));
+  overflow-y: auto;
+  background-color: var(--color-off-white);
+}
+
+.main-content__inner {
+  max-width: calc(var(--layout-max-width) - var(--layout-sidebar-width));
+  padding: var(--space-lg);
+}
+
+.main-content__title {
+  margin-bottom: var(--space-lg);
+}
+
+/* ===================
+   Content Sections
+   =================== */
+.main-content__section {
+  margin-bottom: var(--space-xl);
+}
+
+.main-content__section:last-child {
+  margin-bottom: 0;
+}

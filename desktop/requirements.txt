@@ -1,0 +1,4 @@
+# CHEM•VIZ Desktop Requirements
+# FOSSEE Scientific Analytics UI
+
+PyQt5>=5.15.0
