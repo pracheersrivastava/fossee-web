@@ -6,6 +6,8 @@ Navigation sidebar with dataset history.
 Width: 240px, Background: Pure White (#FFFFFF)
 """
 
+from typing import List, Dict, Any, Optional
+
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
     QLabel, QFrame, QButtonGroup
@@ -13,6 +15,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, pyqtSignal
 
 from ..core.tokens import SPACE_XS, SPACE_SM, SPACE_MD, SPACE_LG
+from .dataset_history import DatasetHistory
 
 
 class NavItem(QPushButton):
@@ -32,6 +35,10 @@ class Sidebar(QWidget):
 
     # Signal emitted when navigation item is clicked
     navigation_changed = pyqtSignal(str)
+    # Dataset history signals
+    reanalyze_clicked = pyqtSignal(str)
+    compare_clicked = pyqtSignal(str)
+    clear_history_clicked = pyqtSignal()
 
     NAV_ITEMS = [
         ("↑", "Upload", "upload"),
@@ -73,26 +80,12 @@ class Sidebar(QWidget):
         history_separator.setStyleSheet("background-color: #CBD5E1; max-height: 1px;")
         layout.addWidget(history_separator)
 
-        # History header
-        history_title = QLabel("Recent Datasets")
-        history_title.setProperty("class", "sidebarSectionTitle")
-        layout.addWidget(history_title)
-
-        # History list placeholder
-        self._history_container = QWidget()
-        history_layout = QVBoxLayout(self._history_container)
-        history_layout.setContentsMargins(SPACE_LG, 0, SPACE_LG, 0)
-        history_layout.setSpacing(SPACE_SM)
-
-        empty_label = QLabel("No recent datasets")
-        empty_label.setProperty("class", "caption")
-        empty_label.setStyleSheet("font-style: italic; color: #6B7280;")
-        history_layout.addWidget(empty_label)
-
-        layout.addWidget(self._history_container)
-
-        # Flexible spacer
-        layout.addStretch()
+        # Dataset History widget
+        self._dataset_history = DatasetHistory(max_items=5)
+        self._dataset_history.reanalyze_clicked.connect(self.reanalyze_clicked.emit)
+        self._dataset_history.compare_clicked.connect(self.compare_clicked.emit)
+        self._dataset_history.clear_history_clicked.connect(self.clear_history_clicked.emit)
+        layout.addWidget(self._dataset_history, 1)
 
         # Footer separator
         footer_separator = QFrame()
@@ -125,3 +118,19 @@ class Sidebar(QWidget):
         """Set the active navigation item."""
         if item_id in self._nav_buttons:
             self._nav_buttons[item_id].setChecked(True)
+
+    def set_datasets(self, datasets: List[Dict[str, Any]]):
+        """Set the dataset history."""
+        self._dataset_history.set_datasets(datasets)
+
+    def set_selected_dataset(self, dataset_id: Optional[str]):
+        """Set the selected dataset in history."""
+        self._dataset_history.set_selected(dataset_id)
+
+    def add_dataset(self, dataset: Dict[str, Any]):
+        """Add a new dataset to history."""
+        self._dataset_history.add_dataset(dataset)
+
+    def clear_history(self):
+        """Clear dataset history."""
+        self._dataset_history.clear()

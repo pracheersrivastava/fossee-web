@@ -1,0 +1,217 @@
+/**
+ * Dataset History Styles
+ * FOSSEE Scientific Analytics UI
+ * 
+ * Per design.md:
+ * - Meta text: 11px
+ * - Caption: 12px
+ * - Spacing: 8px base
+ */
+
+/* ===================
+   Container
+   =================== */
+.dataset-history {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md) 0;
+}
+
+.dataset-history__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-lg);
+  margin-bottom: var(--space-sm);
+}
+
+.dataset-history__title {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-slate-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.dataset-history__clear {
+  background: transparent;
+  border: none;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-meta);
+  color: var(--color-slate-gray);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color var(--transition-fast),
+              background-color var(--transition-fast);
+}
+
+.dataset-history__clear:hover {
+  color: var(--color-error);
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+/* ===================
+   List
+   =================== */
+.dataset-history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dataset-history__empty {
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--font-size-caption);
+  color: var(--color-slate-gray);
+  font-style: italic;
+  margin: 0;
+}
+
+.dataset-history__more {
+  display: block;
+  padding: var(--space-xs) var(--space-lg);
+  font-size: var(--font-size-meta);
+  color: var(--color-slate-gray);
+  text-align: center;
+}
+
+/* ===================
+   History Item
+   =================== */
+.history-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.history-item:hover {
+  background-color: var(--color-off-white);
+}
+
+.history-item--selected {
+  background-color: var(--color-off-white);
+  border-left: 2px solid var(--color-academic-blue);
+  padding-left: calc(var(--space-lg) - 2px);
+}
+
+.history-item__content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.history-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.history-item__filename {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-deep-indigo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-item__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.history-item__timestamp {
+  font-size: var(--font-size-meta);
+  color: var(--color-slate-gray);
+}
+
+.history-item__rows {
+  font-size: var(--font-size-meta);
+  color: var(--color-slate-gray);
+}
+
+.history-item__rows::before {
+  content: '·';
+  margin-right: var(--space-xs);
+}
+
+/* ===================
+   Sparkline
+   =================== */
+.history-item__sparkline {
+  flex-shrink: 0;
+}
+
+.sparkline {
+  display: block;
+}
+
+.sparkline--empty {
+  display: inline-block;
+  background-color: var(--color-table-zebra);
+  border-radius: 2px;
+}
+
+/* ===================
+   Hover Actions
+   =================== */
+.history-item__actions {
+  display: flex;
+  gap: var(--space-xs);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  position: absolute;
+  right: var(--space-sm);
+}
+
+.history-item__actions--visible {
+  opacity: 1;
+}
+
+.history-item__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-pure-white);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--color-slate-gray);
+  cursor: pointer;
+  transition: border-color var(--transition-fast),
+              color var(--transition-fast),
+              background-color var(--transition-fast);
+}
+
+.history-item__action:hover {
+  border-color: var(--color-academic-blue);
+  color: var(--color-academic-blue);
+  background-color: rgba(47, 128, 237, 0.05);
+}
+
+.history-item__action:first-child:hover {
+  /* Re-analyze action - use success color */
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background-color: rgba(34, 197, 94, 0.05);
+}
+
+.history-item__action:last-child:hover {
+  /* Compare action - use info color */
+  border-color: var(--color-info);
+  color: var(--color-info);
+  background-color: rgba(59, 130, 246, 0.05);
+}

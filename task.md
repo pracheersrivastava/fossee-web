@@ -64,14 +64,6 @@ Building a hybrid Web + Desktop application following `design.md` specifications
 | Charts Grid/Layout | ✅ `Charts.jsx` | ✅ `charts.py` | Responsive layout |
 | Main window integration | ✅ | ✅ | AnalysisCharts screen |
 
----
-
-## 🔄 IN PROGRESS
-
-None currently.
-
----
-
 ### Data Table Component
 
 | Task | Web (React) | Desktop (PyQt5) | Notes |
@@ -83,6 +75,25 @@ None currently.
 | Hover states | ✅ | ✅ | Blue highlight `#EBF4FF` |
 | No vertical grid lines | ✅ | ✅ | Per design.md Section 5.4 |
 | Status badges | ✅ | ✅ | Active/Inactive/Maintenance |
+
+### Dataset History Sidebar
+
+| Task | Web (React) | Desktop (PyQt5) | Notes |
+|------|-------------|-----------------|-------|
+| History component | ✅ `DatasetHistory.jsx` | ✅ `dataset_history.py` | Sidebar history list |
+| Last 5 uploads | ✅ | ✅ | Max items configurable |
+| Timestamps | ✅ | ✅ | Relative time (e.g., "2h ago") |
+| Sparkline preview | ✅ | ✅ | Mini SVG/QPainter chart |
+| Hover actions | ✅ | ✅ | Re-analyze / Compare buttons |
+| Selection state | ✅ | ✅ | Blue left border indicator |
+| Clear history | ✅ | ✅ | Clear button in header |
+| Sidebar integration | ✅ | ✅ | Props/signals passed through |
+
+---
+
+## 🔄 IN PROGRESS
+
+None currently.
 
 ---
 
@@ -161,8 +172,11 @@ CHEM•VIZ Design System/
 │       │   ├── chartConfig.js   # Chart.js configurations
 │       │   ├── Charts.jsx/.css  # Chart components
 │       │   └── index.js
-│       └── DataTable/
-│           ├── DataTable.jsx/.css  # Table components
+│       ├── DataTable/
+│       │   ├── DataTable.jsx/.css  # Table components
+│       │   └── index.js
+│       └── DatasetHistory/
+│           ├── DatasetHistory.jsx/.css  # Sidebar history
 │           └── index.js
 │
 ├── desktop/                    # PyQt5 Desktop App
@@ -183,7 +197,8 @@ CHEM•VIZ Design System/
 │   │   ├── csv_upload.py
 │   │   ├── kpi_cards.py
 │   │   ├── summary_screen.py
-│   │   └── data_table.py       # QTableView equipment table
+│   │   ├── data_table.py       # QTableView equipment table
+│   │   └── dataset_history.py  # Sidebar history widget
 │   └── charts/
 │       ├── __init__.py
 │       ├── chart_config.py     # Matplotlib configurations
@@ -226,13 +241,14 @@ All implementations MUST follow `design.md`:
 | feat: add Chart.js charts | React charts |
 | feat: add Matplotlib charts | PyQt5 charts matching React |
 | feat: add React data table | Equipment table component |
-| feat: add PyQt5 data table | QTableView equipment table (current) |
+| feat: add PyQt5 data table | QTableView equipment table |
+| feat: add dataset history sidebar | Sidebar history with sparklines (current) |
 
 ---
 
 ## Next Steps for AI Dev
 
-1. **History Screen** - Wire DataTable to history view (Both platforms)
+1. **History Screen** - Wire DataTable to full history view (Both platforms)
 2. **Data Flow** - Connect CSV parsing to real chart/table data
 3. **Export Features** - PDF report generation
 4. **Accessibility** - Keyboard navigation, focus indicators

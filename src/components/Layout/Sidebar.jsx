@@ -7,6 +7,7 @@
  */
 
 import React from 'react';
+import { DatasetHistory } from '../DatasetHistory';
 import './Sidebar.css';
 
 const NAV_ITEMS = [
@@ -16,7 +17,15 @@ const NAV_ITEMS = [
   { id: 'history', label: 'History', icon: '◷' },
 ];
 
-export function Sidebar({ activeItem = 'upload', onNavigate }) {
+export function Sidebar({ 
+  activeItem = 'upload', 
+  onNavigate,
+  datasets = [],
+  selectedDatasetId,
+  onReanalyze,
+  onCompare,
+  onClearHistory
+}) {
   return (
     <aside className="sidebar">
       <nav className="sidebar__nav">
@@ -39,11 +48,14 @@ export function Sidebar({ activeItem = 'upload', onNavigate }) {
       </nav>
 
       <div className="sidebar__history">
-        <h3 className="sidebar__history-title">Recent Datasets</h3>
-        <ul className="sidebar__history-list">
-          {/* History items will be populated dynamically */}
-        </ul>
-        <p className="sidebar__history-empty caption">No recent datasets</p>
+        <DatasetHistory
+          datasets={datasets}
+          selectedId={selectedDatasetId}
+          maxItems={5}
+          onReanalyze={onReanalyze}
+          onCompare={onCompare}
+          onClearHistory={onClearHistory}
+        />
       </div>
 
       <div className="sidebar__footer">

@@ -15,6 +15,11 @@ from .data_table import (
     DataTableCard,
     EquipmentDataTable,
 )
+from .dataset_history import (
+    DatasetHistory,
+    HistoryItem,
+    Sparkline,
+)
 
 __all__ = [
     "Header",
@@ -34,4 +39,7 @@ __all__ = [
     "EquipmentTableView",
     "DataTableCard",
     "EquipmentDataTable",
+    "DatasetHistory",
+    "HistoryItem",
+    "Sparkline",
 ]
