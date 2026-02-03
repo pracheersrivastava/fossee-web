@@ -6,12 +6,14 @@ Main application window with Header, Sidebar, and MainContent.
 Follows design.md specifications exactly.
 """
 
+from typing import Optional, Dict, Any
+
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout
 )
 from PyQt5.QtCore import Qt
 
-from .widgets import Header, Sidebar, MainContent, ScreenPlaceholder
+from .widgets import Header, Sidebar, MainContent, ScreenPlaceholder, CSVUpload
 from .core.tokens import LAYOUT_MIN_CONTENT_WIDTH, LAYOUT_HEADER_HEIGHT
 
 
@@ -23,7 +25,6 @@ PAGE_TITLES = {
 }
 
 SCREEN_PLACEHOLDERS = {
-    "upload": "CSV upload component will appear here.",
     "summary": "Data summary and KPIs will appear here.",
     "analysis": "Charts and analysis will appear here.",
     "history": "Analysis history table will appear here.",
@@ -36,6 +37,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self._current_screen = "upload"
+        self._uploaded_data: Optional[Dict[str, Any]] = None
+        self._csv_upload: Optional[CSVUpload] = None
         self._setup_window()
         self._setup_ui()
         self._connect_signals()
@@ -95,11 +98,33 @@ class MainWindow(QMainWindow):
         title = PAGE_TITLES.get(screen_id, "")
         self._main_content.set_title(title)
 
-        # Set placeholder content (will be replaced with actual screens)
-        placeholder_text = SCREEN_PLACEHOLDERS.get(screen_id, "")
-        placeholder = ScreenPlaceholder(placeholder_text)
-        self._main_content.set_content(placeholder)
+        # Render screen content
+        if screen_id == "upload":
+            self._render_upload_screen()
+        else:
+            placeholder_text = SCREEN_PLACEHOLDERS.get(screen_id, "")
+            placeholder = ScreenPlaceholder(placeholder_text)
+            self._main_content.set_content(placeholder)
+
+    def _render_upload_screen(self):
+        """Render the CSV upload screen."""
+        self._csv_upload = CSVUpload()
+        self._csv_upload.upload_complete.connect(self._on_upload_complete)
+        self._csv_upload.upload_cleared.connect(self._on_upload_cleared)
+        self._main_content.set_content(self._csv_upload)
+
+    def _on_upload_complete(self, data: Dict[str, Any]):
+        """Handle successful CSV upload."""
+        self._uploaded_data = data
+
+    def _on_upload_cleared(self):
+        """Handle upload cleared."""
+        self._uploaded_data = None
 
     def get_current_screen(self) -> str:
         """Get the current screen ID."""
         return self._current_screen
+
+    def get_uploaded_data(self) -> Optional[Dict[str, Any]]:
+        """Get the current uploaded data."""
+        return self._uploaded_data

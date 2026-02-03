@@ -4,7 +4,7 @@ FOSSEE Scientific Analytics UI
 """
 
 from .main_window import MainWindow
-from .widgets import Header, Sidebar, MainContent, ScreenPlaceholder
+from .widgets import Header, Sidebar, MainContent, ScreenPlaceholder, CSVUpload
 from .core import tokens
 
 __version__ = "1.0.0"
@@ -14,5 +14,6 @@ __all__ = [
     "Sidebar",
     "MainContent",
     "ScreenPlaceholder",
+    "CSVUpload",
     "tokens",
 ]

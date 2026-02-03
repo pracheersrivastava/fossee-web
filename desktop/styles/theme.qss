@@ -425,3 +425,108 @@ QFrame.placeholder {
     border: 2px dashed #CBD5E1;
     border-radius: 8px;
 }
+
+/* ===================
+   CSV UPLOAD COMPONENT
+   Per design.md Section 5.2
+   =================== */
+QFrame#uploadDropZone {
+    background-color: #F8FAFC;
+    border: 2px dashed #CBD5E1;
+    border-radius: 8px;
+    min-height: 200px;
+}
+
+QFrame#uploadDropZone:hover {
+    border-color: #2F80ED;
+}
+
+QFrame#uploadDropZone[dragActive="true"] {
+    border-color: #2F80ED;
+    background-color: rgba(47, 128, 237, 0.05);
+}
+
+QLabel#uploadIcon {
+    font-size: 24px;
+    color: #2F80ED;
+    background-color: rgba(47, 128, 237, 0.1);
+    border-radius: 24px;
+    min-width: 48px;
+    max-width: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    qproperty-alignment: AlignCenter;
+}
+
+QLabel#uploadText {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1E2A38;
+}
+
+QLabel#uploadSubtext {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+QLabel#uploadError {
+    background-color: #FEE2E2;
+    border-radius: 6px;
+    color: #DC2626;
+    font-size: 12px;
+    padding: 8px 16px;
+}
+
+/* ===================
+   SUMMARY CARD
+   Post-upload state
+   =================== */
+QFrame#summaryCard {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+}
+
+QLabel#summaryFilename {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1E2A38;
+}
+
+QLabel#statValue {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1E2A38;
+}
+
+QFrame#issuesFrame {
+    background-color: #FEF3C7;
+    border-radius: 6px;
+}
+
+/* Status Badges by status property */
+QLabel[status="success"] {
+    background-color: #DCFCE7;
+    border-radius: 4px;
+    color: #22C55E;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+}
+
+QLabel[status="warning"] {
+    background-color: #FEF3C7;
+    border-radius: 4px;
+    color: #B45309;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+}
+
+QLabel[status="error"] {
+    background-color: #FEE2E2;
+    border-radius: 4px;
+    color: #DC2626;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+}
