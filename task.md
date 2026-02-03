@@ -72,17 +72,37 @@ None currently.
 
 ---
 
+### Data Table Component
+
+| Task | Web (React) | Desktop (PyQt5) | Notes |
+|------|-------------|-----------------|-------|
+| DataTable component | ✅ `DataTable.jsx` | ❌ | Generic table with sorting |
+| EquipmentDataTable | ✅ | ❌ | Pre-configured for equipment data |
+| Sticky headers | ✅ | ❌ | `#F1F5F9` background |
+| Zebra striping | ✅ | ❌ | `#FAFAFA` alt rows |
+| Hover states | ✅ | ❌ | Blue highlight `#EBF4FF` |
+| No vertical grid lines | ✅ | ❌ | Per design.md Section 5.4 |
+| Status badges | ✅ | ❌ | Active/Inactive/Maintenance |
+
+---
+
 ## ❌ REMAINING TASKS
 
 ### Screen 4: History
 
 | Task | Web (React) | Desktop (PyQt5) | Notes |
 |------|-------------|-----------------|-------|
-| History table | ❌ | ❌ | Per design.md Section 5.4 |
-| Zebra striping | ❌ | ❌ | `#FAFAFA` alt rows |
-| Sticky header | ❌ | ❌ | `#F1F5F9` background |
+| History table | ❌ | ❌ | Using DataTable component |
 | Row actions | ❌ | ❌ | View, Export, Delete |
 | Pagination | ❌ | ❌ | Optional |
+
+### Data Table (PyQt5)
+
+| Task | Priority | Notes |
+|------|----------|-------|
+| QTableWidget styling | High | Match React table exactly |
+| Sticky headers | High | Scroll behavior |
+| Zebra striping | High | `#FAFAFA` alt rows |
 
 ### Data Flow & State
 
@@ -145,9 +165,12 @@ CHEM•VIZ Design System/
 │       ├── SummaryScreen/
 │       │   ├── SummaryScreen.jsx/.css
 │       │   └── index.js
-│       └── Charts/
-│           ├── chartConfig.js   # Chart.js configurations
-│           ├── Charts.jsx/.css  # Chart components
+│       ├── Charts/
+│       │   ├── chartConfig.js   # Chart.js configurations
+│       │   ├── Charts.jsx/.css  # Chart components
+│       │   └── index.js
+│       └── DataTable/
+│           ├── DataTable.jsx/.css  # Table components
 │           └── index.js
 │
 ├── desktop/                    # PyQt5 Desktop App
@@ -208,17 +231,18 @@ All implementations MUST follow `design.md`:
 | feat: KPI cards React | Summary KPIs + SummaryScreen |
 | feat: add PyQt5 summary KPI cards and summary screen | Desktop KPIs |
 | feat: add Chart.js charts | React charts |
-| feat: add Matplotlib charts | PyQt5 charts matching React (current) |
+| feat: add Matplotlib charts | PyQt5 charts matching React |
+| feat: add React data table | Equipment table component (current) |
 
 ---
 
 ## Next Steps for AI Dev
 
-1. **History Screen** - Table component with data persistence (Both platforms)
-2. **Data Flow** - Connect CSV parsing to real chart data
-3. **Export Features** - PDF report generation
-4. **Accessibility** - Keyboard navigation, focus indicators
-5. **Polish** - Loading states, empty states, error boundaries
+1. **PyQt5 Data Table** - QTableWidget matching React DataTable
+2. **History Screen** - Wire DataTable to history view (Both platforms)
+3. **Data Flow** - Connect CSV parsing to real chart/table data
+4. **Export Features** - PDF report generation
+5. **Accessibility** - Keyboard navigation, focus indicators
 
 ---
 

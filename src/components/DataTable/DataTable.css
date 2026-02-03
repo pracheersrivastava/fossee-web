@@ -1,0 +1,239 @@
+/**
+ * Data Table CSS
+ * FOSSEE Scientific Analytics UI
+ *
+ * Follows design.md Section 5.4:
+ * - Header background: #F1F5F9
+ * - Row height: 44px
+ * - Zebra striping: #FAFAFA
+ * - Sticky headers: Enabled
+ * - No vertical grid lines
+ * - Hover highlight only
+ */
+
+/* ===================
+   TABLE CONTAINER
+   =================== */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--color-pure-white);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* ===================
+   DATA TABLE
+   =================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: var(--font-size-table);
+  line-height: var(--line-height-table);
+}
+
+/* ===================
+   TABLE HEADER
+   Sticky, #F1F5F9 background
+   =================== */
+.table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-header-cell {
+  background-color: var(--color-table-header);
+  color: var(--color-deep-indigo);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-table);
+  text-align: left;
+  padding: 0 var(--space-md);
+  height: var(--table-row-height);
+  border: none;
+  border-bottom: 1px solid var(--color-gridline);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.table-header-cell.sortable {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.table-header-cell.sortable:hover {
+  background-color: #E8EDF2;
+}
+
+.table-header-cell.sorted {
+  color: var(--color-academic-blue);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.sort-indicator {
+  font-size: 10px;
+  color: var(--color-slate-gray);
+  opacity: 0.6;
+}
+
+.table-header-cell.sorted .sort-indicator {
+  color: var(--color-academic-blue);
+  opacity: 1;
+}
+
+/* ===================
+   TABLE BODY
+   =================== */
+.table-body {
+  background-color: var(--color-pure-white);
+}
+
+/* ===================
+   TABLE ROW
+   44px height, zebra striping, hover
+   =================== */
+.table-row {
+  height: var(--table-row-height);
+  transition: background-color var(--transition-fast);
+}
+
+/* Zebra striping - even rows #FAFAFA */
+.table-row.even {
+  background-color: var(--color-table-zebra);
+}
+
+.table-row.odd {
+  background-color: var(--color-pure-white);
+}
+
+/* Hover state */
+.table-row:hover {
+  background-color: #EBF4FF;
+}
+
+/* Clickable rows */
+.table-row[onClick] {
+  cursor: pointer;
+}
+
+/* ===================
+   TABLE CELL
+   No vertical grid lines
+   =================== */
+.table-cell {
+  padding: 0 var(--space-md);
+  height: var(--table-row-height);
+  border: none;
+  border-bottom: 1px solid var(--color-gridline);
+  color: var(--color-deep-indigo);
+  font-size: var(--font-size-table);
+  vertical-align: middle;
+}
+
+/* ===================
+   EMPTY STATE
+   =================== */
+.empty-row {
+  background-color: var(--color-pure-white);
+}
+
+.empty-cell {
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  color: var(--color-slate-gray);
+  font-size: var(--font-size-body);
+}
+
+/* ===================
+   STATUS BADGES
+   =================== */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  text-transform: capitalize;
+}
+
+.status-active {
+  background-color: #DCFCE7;
+  color: #22C55E;
+}
+
+.status-inactive {
+  background-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.status-maintenance {
+  background-color: #FEF3C7;
+  color: #B45309;
+}
+
+.status-unknown {
+  background-color: #F1F5F9;
+  color: #6B7280;
+}
+
+/* ===================
+   TABLE CARD
+   =================== */
+.table-card {
+  background-color: var(--color-pure-white);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.table-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-gridline);
+}
+
+.table-card-title {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-deep-indigo);
+  margin: 0;
+}
+
+.table-card-actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.table-card-content {
+  padding: 0;
+}
+
+.table-card-content .table-container {
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* ===================
+   RESPONSIVE
+   =================== */
+@media (max-width: 768px) {
+  .table-header-cell,
+  .table-cell {
+    padding: 0 var(--space-sm);
+    font-size: var(--font-size-caption);
+  }
+  
+  .table-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+}
