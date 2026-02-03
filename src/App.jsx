@@ -9,6 +9,7 @@
 import React, { useState, useCallback } from 'react';
 import { Header, Sidebar, MainContent } from './components/Layout';
 import { CSVUpload } from './components/CSVUpload';
+import { SummaryScreen } from './components/SummaryScreen';
 import './App.css';
 
 const PAGE_TITLES = {
@@ -28,10 +29,21 @@ function App() {
 
   const handleUploadComplete = useCallback((data) => {
     setUploadedData(data);
+    // Auto-navigate to summary after upload
+    setActiveScreen('summary');
   }, []);
 
   const handleUploadClear = useCallback(() => {
     setUploadedData(null);
+  }, []);
+
+  const handleGenerateAnalysis = useCallback(() => {
+    setActiveScreen('analysis');
+  }, []);
+
+  const handleUploadDifferent = useCallback(() => {
+    setUploadedData(null);
+    setActiveScreen('upload');
   }, []);
 
   const renderScreen = () => {
@@ -44,7 +56,13 @@ function App() {
           />
         );
       case 'summary':
-        return <ScreenPlaceholder message="Data summary and KPIs will appear here." />;
+        return (
+          <SummaryScreen
+            uploadData={uploadedData}
+            onGenerateAnalysis={handleGenerateAnalysis}
+            onUploadDifferent={handleUploadDifferent}
+          />
+        );
       case 'analysis':
         return <ScreenPlaceholder message="Charts and analysis will appear here." />;
       case 'history':

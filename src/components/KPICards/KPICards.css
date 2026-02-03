@@ -1,0 +1,115 @@
+/**
+ * KPI Cards Styles
+ * FOSSEE Scientific Analytics UI
+ * 
+ * Card styling per design.md Section 5.3:
+ * - Background: White (#FFFFFF)
+ * - Radius: 8px
+ * - Padding: 16px
+ * - Shadow: 0px 2px 6px rgba(0,0,0,0.05)
+ * - No colored backgrounds
+ * - No heavy shadows
+ */
+
+/* ===================
+   KPI GRID
+   Responsive 4-column layout
+   =================== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+  width: 100%;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===================
+   KPI CARD
+   Per design.md Section 5.3
+   =================== */
+.kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  background-color: var(--color-pure-white);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--card-shadow);
+}
+
+/* ===================
+   KPI ICON
+   =================== */
+.kpi-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  background-color: rgba(139, 92, 246, 0.1);
+  color: var(--color-equipment);
+  border-radius: 8px;
+}
+
+/* ===================
+   KPI CONTENT
+   =================== */
+.kpi-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0; /* Allow text truncation */
+}
+
+/* ===================
+   KPI VALUE
+   Typography: H2 equivalent (18px, semibold)
+   =================== */
+.kpi-card__value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-h2);
+  color: var(--color-deep-indigo);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===================
+   KPI UNIT
+   Typography: Caption (12px, regular)
+   =================== */
+.kpi-card__unit {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-slate-gray);
+  margin-left: 2px;
+}
+
+/* ===================
+   KPI LABEL
+   Typography: Caption (12px, regular)
+   =================== */
+.kpi-card__label {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--line-height-caption);
+  color: var(--color-slate-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
