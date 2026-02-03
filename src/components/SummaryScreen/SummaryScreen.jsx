@@ -5,7 +5,7 @@
  * Displays data summary after CSV upload:
  * - Summary card with file info
  * - KPI cards (Total equipment, Avg flowrate, Avg temperature, Dominant type)
- * - Data preview table (future)
+ * - Data preview table
  * - Actions: Generate Analysis, Upload Different File
  * 
  * Visual hierarchy per design.md Section 6:
@@ -13,38 +13,17 @@
  * 2. KPI Cards
  * 3. Data Preview
  * 4. Action Buttons
+ * 
+ * Data Flow:
+ * 1. Upload returns datasetId + basic metadata
+ * 2. SummaryScreen fetches /api/summary/{id}/ for KPIs
+ * 3. KPIs bound to UI, updates on dataset change
  */
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { SummaryKPIs } from '../KPICards';
+import { getDatasetSummary, APIError } from '../../services/api';
 import './SummaryScreen.css';
-
-/**
- * Compute KPIs from CSV headers
- * In a real app, this would analyze the actual data
- * For now, generates mock data based on file info
- */
-function computeKPIs(uploadData) {
-  if (!uploadData) {
-    return {
-      totalEquipment: 0,
-      avgFlowrate: 0,
-      avgTemperature: 0,
-      dominantType: '—',
-    };
-  }
-
-  // Mock KPI computation based on row count
-  // In production, this would parse and analyze actual CSV data
-  const rowCount = uploadData.rowCount || 0;
-  
-  return {
-    totalEquipment: rowCount,
-    avgFlowrate: rowCount > 0 ? 45.2 + (rowCount % 10) : 0,
-    avgTemperature: rowCount > 0 ? 78.5 + (rowCount % 5) : 0,
-    dominantType: rowCount > 0 ? 'Heat Exchanger' : '—',
-  };
-}
 
 /**
  * Format file size for display
@@ -57,15 +36,80 @@ function formatFileSize(bytes) {
 }
 
 /**
+ * Default KPI values when loading or no data
+ */
+const DEFAULT_KPIS = {
+  totalEquipment: 0,
+  avgFlowrate: 0,
+  avgTemperature: 0,
+  dominantType: '—',
+};
+
+/**
  * Summary Screen
  * 
- * @param {object} uploadData - Data from CSV upload
+ * @param {object} uploadData - Data from CSV upload (includes datasetId)
  * @param {function} onGenerateAnalysis - Handler for Generate Analysis action
  * @param {function} onUploadDifferent - Handler for Upload Different File action
  */
 export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferent }) {
-  const kpiData = computeKPIs(uploadData);
+  const [kpiData, setKpiData] = useState(DEFAULT_KPIS);
+  const [previewData, setPreviewData] = useState([]);
+  const [previewHeaders, setPreviewHeaders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
+  /**
+   * Fetch summary data from API when datasetId changes
+   */
+  const fetchSummary = useCallback(async (datasetId) => {
+    if (!datasetId) {
+      setError('No dataset ID available. Please upload a CSV file.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const summary = await getDatasetSummary(datasetId);
+      setKpiData(summary.kpis);
+      setPreviewData(summary.previewData || []);
+      setPreviewHeaders(summary.previewHeaders || []);
+    } catch (err) {
+      console.error('Failed to fetch summary:', err);
+      
+      if (err instanceof APIError && err.status === 0) {
+        setError('Could not connect to server. Please ensure the backend is running.');
+      } else if (err instanceof APIError && err.status === 404) {
+        setError('Dataset not found. It may have been deleted.');
+      } else {
+        setError(err.message || 'Failed to load summary data');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Effect: Fetch summary when uploadData changes
+   */
+  useEffect(() => {
+    if (uploadData?.datasetId) {
+      fetchSummary(uploadData.datasetId);
+    }
+  }, [uploadData?.datasetId, fetchSummary]);
+
+  /**
+   * Retry handler for failed API calls
+   */
+  const handleRetry = useCallback(() => {
+    if (uploadData?.datasetId) {
+      fetchSummary(uploadData.datasetId);
+    }
+  }, [uploadData?.datasetId, fetchSummary]);
+
+  // Empty state
   if (!uploadData) {
     return (
       <div className="summary-screen__empty">
@@ -96,7 +140,7 @@ export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferen
               <div className="summary-card__file-details">
                 <span className="summary-card__filename">{uploadData.fileName}</span>
                 <span className="summary-card__meta caption">
-                  {formatFileSize(uploadData.fileSize)} • {uploadData.rowCount.toLocaleString()} rows • {uploadData.columnCount} columns
+                  {formatFileSize(uploadData.fileSize)} • {uploadData.rowCount?.toLocaleString()} rows • {uploadData.columnCount} columns
                 </span>
               </div>
             </div>
@@ -108,15 +152,45 @@ export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferen
       {/* KPI Cards */}
       <section className="summary-screen__section">
         <h2 className="summary-screen__section-title">Key Metrics</h2>
-        <SummaryKPIs data={kpiData} />
+        
+        {error && (
+          <div className="summary-screen__error" role="alert">
+            <span>{error}</span>
+            <button 
+              type="button" 
+              className="summary-screen__retry-btn"
+              onClick={handleRetry}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        
+        {loading ? (
+          <div className="summary-screen__loading">
+            <KPILoadingSkeleton />
+          </div>
+        ) : (
+          <SummaryKPIs data={kpiData} />
+        )}
       </section>
 
-      {/* Data Preview Placeholder */}
+      {/* Data Preview */}
       <section className="summary-screen__section">
         <h2 className="summary-screen__section-title">Data Preview</h2>
-        <div className="summary-screen__preview-placeholder">
-          <p className="text-secondary">Data table preview will appear here</p>
-        </div>
+        {loading ? (
+          <div className="summary-screen__preview-loading">
+            <TableLoadingSkeleton />
+          </div>
+        ) : previewData.length > 0 ? (
+          <DataPreviewTable headers={previewHeaders} rows={previewData} />
+        ) : (
+          <div className="summary-screen__preview-placeholder">
+            <p className="text-secondary">
+              No preview data available
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Actions */}
@@ -125,6 +199,7 @@ export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferen
           type="button" 
           className="btn btn--primary"
           onClick={onGenerateAnalysis}
+          disabled={loading}
         >
           Generate Analysis
         </button>
@@ -154,6 +229,74 @@ function StatusBadge({ status }) {
     <span className={`status-badge status-badge--${status}`}>
       {labels[status] || status}
     </span>
+  );
+}
+
+/**
+ * Loading skeleton for KPI cards
+ */
+function KPILoadingSkeleton() {
+  return (
+    <div className="kpi-grid">
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="kpi-card kpi-card--skeleton">
+          <div className="skeleton skeleton--icon" />
+          <div className="kpi-card__content">
+            <div className="skeleton skeleton--value" />
+            <div className="skeleton skeleton--label" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Loading skeleton for data table
+ */
+function TableLoadingSkeleton() {
+  return (
+    <div className="table-skeleton">
+      <div className="skeleton skeleton--row skeleton--header" />
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className="skeleton skeleton--row" />
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Data Preview Table Component
+ */
+function DataPreviewTable({ headers, rows }) {
+  if (!headers.length || !rows.length) return null;
+
+  return (
+    <div className="data-preview-table-wrapper">
+      <table className="data-preview-table">
+        <thead>
+          <tr>
+            {headers.map((header, idx) => (
+              <th key={idx}>{header}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.slice(0, 5).map((row, rowIdx) => (
+            <tr key={rowIdx}>
+              {headers.map((header, colIdx) => (
+                <td key={colIdx}>{row[header] ?? row[colIdx] ?? '—'}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {rows.length > 5 && (
+        <p className="data-preview-table__more caption">
+          Showing 5 of {rows.length} rows
+        </p>
+      )}
+    </div>
   );
 }
 

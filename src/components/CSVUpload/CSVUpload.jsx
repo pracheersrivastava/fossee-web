@@ -4,65 +4,17 @@
  * 
  * Upload zone that transforms into summary card after upload.
  * Follows design.md Section 5.2 exactly.
+ * 
+ * State Flow:
+ * 1. User selects/drops file
+ * 2. Component calls Django API (/api/upload/)
+ * 3. On success: store datasetId, show summary card
+ * 4. On error: display error message, allow retry
  */
 
 import React, { useState, useRef, useCallback } from 'react';
+import { uploadCSV, APIError } from '../../services/api';
 import './CSVUpload.css';
-
-/**
- * Parse CSV file and extract metadata
- */
-function parseCSV(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    
-    reader.onload = (event) => {
-      try {
-        const text = event.target.result;
-        const lines = text.split('\n').filter(line => line.trim());
-        const headers = lines[0]?.split(',').map(h => h.trim()) || [];
-        const rowCount = Math.max(0, lines.length - 1); // Exclude header
-        
-        // Basic validation
-        const issues = [];
-        if (headers.length === 0) {
-          issues.push('No headers found');
-        }
-        if (rowCount === 0) {
-          issues.push('No data rows found');
-        }
-        
-        // Check for empty cells in first few rows
-        const sampleRows = lines.slice(1, 6);
-        let hasEmptyCells = false;
-        sampleRows.forEach((row, idx) => {
-          const cells = row.split(',');
-          if (cells.some(cell => cell.trim() === '')) {
-            hasEmptyCells = true;
-          }
-        });
-        if (hasEmptyCells) {
-          issues.push('Some cells contain empty values');
-        }
-
-        resolve({
-          fileName: file.name,
-          fileSize: file.size,
-          rowCount,
-          columnCount: headers.length,
-          headers,
-          validationStatus: issues.length === 0 ? 'success' : issues.length === 1 && hasEmptyCells ? 'warning' : 'error',
-          issues,
-        });
-      } catch (error) {
-        reject(new Error('Failed to parse CSV file'));
-      }
-    };
-    
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsText(file);
-  });
-}
 
 /**
  * Format file size for display
@@ -75,13 +27,20 @@ function formatFileSize(bytes) {
 
 /**
  * CSV Upload Component
+ * 
+ * Props:
+ * - onUploadComplete(data): Called with dataset metadata after successful upload
+ * - onClear(): Called when user clears the upload
+ * - onError(error): Optional callback for error handling
  */
-export function CSVUpload({ onUploadComplete, onClear }) {
+export function CSVUpload({ onUploadComplete, onClear, onError }) {
   const [dragActive, setDragActive] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [uploadState, setUploadState] = useState('idle'); // idle | uploading | success | error
   const [uploadData, setUploadData] = useState(null);
   const [error, setError] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const inputRef = useRef(null);
+  const fileRef = useRef(null); // Store file for retry
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
@@ -93,28 +52,79 @@ export function CSVUpload({ onUploadComplete, onClear }) {
     }
   }, []);
 
+  /**
+   * Upload file to Django backend API
+   */
   const processFile = useCallback(async (file) => {
     if (!file) return;
 
     // Validate file type
     if (!file.name.endsWith('.csv')) {
-      setError('Please upload a CSV file');
+      const errorMsg = 'Please upload a CSV file';
+      setError(errorMsg);
+      setUploadState('error');
+      onError?.(new Error(errorMsg));
       return;
     }
 
-    setUploading(true);
+    // Store file for potential retry
+    fileRef.current = file;
+    
+    setUploadState('uploading');
+    setUploadProgress(10);
     setError(null);
 
     try {
-      const data = await parseCSV(file);
+      // Simulate progress during upload
+      setUploadProgress(30);
+      
+      // Call Django API
+      const data = await uploadCSV(file);
+      
+      setUploadProgress(100);
       setUploadData(data);
+      setUploadState('success');
+      
+      // Notify parent with complete dataset info including datasetId
       onUploadComplete?.(data);
+      
     } catch (err) {
-      setError(err.message || 'Failed to process file');
-    } finally {
-      setUploading(false);
+      console.error('Upload failed:', err);
+      
+      // Handle specific error types
+      let errorMessage = 'Upload failed. Please try again.';
+      
+      if (err instanceof APIError) {
+        if (err.status === 0) {
+          errorMessage = 'Cannot connect to server. Please ensure the backend is running.';
+        } else if (err.status === 413) {
+          errorMessage = 'File too large. Maximum size is 10MB.';
+        } else if (err.status === 400) {
+          errorMessage = err.data?.error || err.data?.message || 'Invalid CSV format.';
+        } else if (err.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        } else {
+          errorMessage = err.message;
+        }
+      } else {
+        errorMessage = err.message || 'Unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
+      setUploadState('error');
+      setUploadProgress(0);
+      onError?.(err);
     }
-  }, [onUploadComplete]);
+  }, [onUploadComplete, onError]);
+
+  /**
+   * Retry failed upload
+   */
+  const handleRetry = useCallback(() => {
+    if (fileRef.current) {
+      processFile(fileRef.current);
+    }
+  }, [processFile]);
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -144,14 +154,17 @@ export function CSVUpload({ onUploadComplete, onClear }) {
   const handleClear = useCallback(() => {
     setUploadData(null);
     setError(null);
+    setUploadState('idle');
+    setUploadProgress(0);
+    fileRef.current = null;
     if (inputRef.current) {
       inputRef.current.value = '';
     }
     onClear?.();
   }, [onClear]);
 
-  // Render Summary Card after upload
-  if (uploadData) {
+  // Render Summary Card after successful upload
+  if (uploadState === 'success' && uploadData) {
     return (
       <div className="csv-summary-card">
         <div className="csv-summary-card__header">
@@ -159,11 +172,19 @@ export function CSVUpload({ onUploadComplete, onClear }) {
             <span className="csv-summary-card__icon" aria-hidden="true">📄</span>
             <div className="csv-summary-card__file-details">
               <span className="csv-summary-card__filename">{uploadData.fileName}</span>
-              <span className="csv-summary-card__filesize caption">{formatFileSize(uploadData.fileSize)}</span>
+              <span className="csv-summary-card__filesize caption">
+                {formatFileSize(uploadData.fileSize)} • {uploadData.rowCount} rows • {uploadData.columnCount} columns
+              </span>
             </div>
           </div>
           <StatusBadge status={uploadData.validationStatus} />
         </div>
+
+        {uploadData.datasetId && (
+          <div className="csv-summary-card__dataset-id">
+            <span className="caption">Dataset ID: {uploadData.datasetId}</span>
+          </div>
+        )}
 
         <div className="csv-summary-card__stats">
           <div className="csv-summary-card__stat">
@@ -176,7 +197,7 @@ export function CSVUpload({ onUploadComplete, onClear }) {
           </div>
         </div>
 
-        {uploadData.issues.length > 0 && (
+        {uploadData.issues && uploadData.issues.length > 0 && (
           <div className="csv-summary-card__issues">
             {uploadData.issues.map((issue, idx) => (
               <p key={idx} className="csv-summary-card__issue caption">{issue}</p>
@@ -201,16 +222,17 @@ export function CSVUpload({ onUploadComplete, onClear }) {
   return (
     <div className="csv-upload">
       <div
-        className={`csv-upload__dropzone ${dragActive ? 'csv-upload__dropzone--active' : ''} ${error ? 'csv-upload__dropzone--error' : ''}`}
+        className={`csv-upload__dropzone ${dragActive ? 'csv-upload__dropzone--active' : ''} ${uploadState === 'error' ? 'csv-upload__dropzone--error' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
+        onClick={uploadState !== 'uploading' ? handleClick : undefined}
+        onKeyDown={uploadState !== 'uploading' ? handleKeyDown : undefined}
+        tabIndex={uploadState !== 'uploading' ? 0 : -1}
         role="button"
         aria-label="Upload CSV file"
+        aria-busy={uploadState === 'uploading'}
       >
         <input
           ref={inputRef}
@@ -219,12 +241,24 @@ export function CSVUpload({ onUploadComplete, onClear }) {
           onChange={handleChange}
           className="csv-upload__input"
           aria-hidden="true"
+          disabled={uploadState === 'uploading'}
         />
 
-        {uploading ? (
+        {uploadState === 'uploading' ? (
           <div className="csv-upload__loading">
             <div className="csv-upload__spinner" />
-            <p className="csv-upload__text">Processing file...</p>
+            <p className="csv-upload__text">Uploading to server...</p>
+            <div className="csv-upload__progress">
+              <div 
+                className="csv-upload__progress-bar" 
+                style={{ width: `${uploadProgress}%` }}
+                role="progressbar"
+                aria-valuenow={uploadProgress}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              />
+            </div>
+            <p className="csv-upload__subtext caption">{uploadProgress}% complete</p>
           </div>
         ) : (
           <>
@@ -241,6 +275,15 @@ export function CSVUpload({ onUploadComplete, onClear }) {
         <div className="csv-upload__error" role="alert">
           <span className="csv-upload__error-icon" aria-hidden="true">!</span>
           <span>{error}</span>
+          {fileRef.current && (
+            <button 
+              type="button" 
+              className="csv-upload__retry-btn"
+              onClick={handleRetry}
+            >
+              Retry
+            </button>
+          )}
         </div>
       )}
 
