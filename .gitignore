@@ -40,3 +40,7 @@ coverage/
 # Misc
 *.bak
 *.tmp
+
+# Internal documentation (not for repo)
+task.md
+design.md
