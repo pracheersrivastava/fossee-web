@@ -10,6 +10,7 @@ import React, { useState, useCallback } from 'react';
 import { Header, Sidebar, MainContent } from './components/Layout';
 import { CSVUpload } from './components/CSVUpload';
 import { SummaryScreen } from './components/SummaryScreen';
+import { AnalysisCharts } from './components/Charts';
 import './App.css';
 
 const PAGE_TITLES = {
@@ -64,7 +65,7 @@ function App() {
           />
         );
       case 'analysis':
-        return <ScreenPlaceholder message="Charts and analysis will appear here." />;
+        return <AnalysisCharts equipmentData={uploadedData} />;
       case 'history':
         return <ScreenPlaceholder message="Analysis history table will appear here." />;
       default:
