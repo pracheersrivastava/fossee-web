@@ -9,6 +9,12 @@ from .main_content import MainContent, ScreenPlaceholder
 from .csv_upload import CSVUpload, DropZone, SummaryCard, StatusBadge
 from .kpi_cards import KPICard, KPIGrid, SummaryKPIs
 from .summary_screen import SummaryScreen, FileInfoCard
+from .data_table import (
+    EquipmentTableModel,
+    EquipmentTableView,
+    DataTableCard,
+    EquipmentDataTable,
+)
 
 __all__ = [
     "Header",
@@ -24,4 +30,8 @@ __all__ = [
     "SummaryKPIs",
     "SummaryScreen",
     "FileInfoCard",
+    "EquipmentTableModel",
+    "EquipmentTableView",
+    "DataTableCard",
+    "EquipmentDataTable",
 ]

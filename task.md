@@ -76,13 +76,13 @@ None currently.
 
 | Task | Web (React) | Desktop (PyQt5) | Notes |
 |------|-------------|-----------------|-------|
-| DataTable component | ✅ `DataTable.jsx` | ❌ | Generic table with sorting |
-| EquipmentDataTable | ✅ | ❌ | Pre-configured for equipment data |
-| Sticky headers | ✅ | ❌ | `#F1F5F9` background |
-| Zebra striping | ✅ | ❌ | `#FAFAFA` alt rows |
-| Hover states | ✅ | ❌ | Blue highlight `#EBF4FF` |
-| No vertical grid lines | ✅ | ❌ | Per design.md Section 5.4 |
-| Status badges | ✅ | ❌ | Active/Inactive/Maintenance |
+| DataTable component | ✅ `DataTable.jsx` | ✅ `data_table.py` | Generic table with sorting |
+| EquipmentDataTable | ✅ | ✅ | Pre-configured for equipment data |
+| Sticky headers | ✅ | ✅ | `#F1F5F9` background |
+| Zebra striping | ✅ | ✅ | `#FAFAFA` alt rows |
+| Hover states | ✅ | ✅ | Blue highlight `#EBF4FF` |
+| No vertical grid lines | ✅ | ✅ | Per design.md Section 5.4 |
+| Status badges | ✅ | ✅ | Active/Inactive/Maintenance |
 
 ---
 
@@ -95,14 +95,6 @@ None currently.
 | History table | ❌ | ❌ | Using DataTable component |
 | Row actions | ❌ | ❌ | View, Export, Delete |
 | Pagination | ❌ | ❌ | Optional |
-
-### Data Table (PyQt5)
-
-| Task | Priority | Notes |
-|------|----------|-------|
-| QTableWidget styling | High | Match React table exactly |
-| Sticky headers | High | Scroll behavior |
-| Zebra striping | High | `#FAFAFA` alt rows |
 
 ### Data Flow & State
 
@@ -190,7 +182,8 @@ CHEM•VIZ Design System/
 │   │   ├── main_content.py
 │   │   ├── csv_upload.py
 │   │   ├── kpi_cards.py
-│   │   └── summary_screen.py
+│   │   ├── summary_screen.py
+│   │   └── data_table.py       # QTableView equipment table
 │   └── charts/
 │       ├── __init__.py
 │       ├── chart_config.py     # Matplotlib configurations
@@ -232,17 +225,17 @@ All implementations MUST follow `design.md`:
 | feat: add PyQt5 summary KPI cards and summary screen | Desktop KPIs |
 | feat: add Chart.js charts | React charts |
 | feat: add Matplotlib charts | PyQt5 charts matching React |
-| feat: add React data table | Equipment table component (current) |
+| feat: add React data table | Equipment table component |
+| feat: add PyQt5 data table | QTableView equipment table (current) |
 
 ---
 
 ## Next Steps for AI Dev
 
-1. **PyQt5 Data Table** - QTableWidget matching React DataTable
-2. **History Screen** - Wire DataTable to history view (Both platforms)
-3. **Data Flow** - Connect CSV parsing to real chart/table data
-4. **Export Features** - PDF report generation
-5. **Accessibility** - Keyboard navigation, focus indicators
+1. **History Screen** - Wire DataTable to history view (Both platforms)
+2. **Data Flow** - Connect CSV parsing to real chart/table data
+3. **Export Features** - PDF report generation
+4. **Accessibility** - Keyboard navigation, focus indicators
 
 ---
 
