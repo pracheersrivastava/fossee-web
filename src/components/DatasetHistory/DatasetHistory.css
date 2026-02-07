@@ -106,6 +106,14 @@
   gap: var(--space-sm);
   flex: 1;
   min-width: 0; /* Allow text truncation */
+  /* Reset button styles */
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
 .history-item__info {
@@ -117,7 +125,7 @@
 }
 
 .history-item__filename {
-  font-size: var(--font-size-caption);
+  font-size: var(--font-size-body);
   font-weight: var(--font-weight-medium);
   color: var(--color-deep-indigo);
   white-space: nowrap;
@@ -132,12 +140,12 @@
 }
 
 .history-item__timestamp {
-  font-size: var(--font-size-meta);
+  font-size: var(--font-size-caption);
   color: var(--color-slate-gray);
 }
 
 .history-item__rows {
-  font-size: var(--font-size-meta);
+  font-size: var(--font-size-caption);
   color: var(--color-slate-gray);
 }
 

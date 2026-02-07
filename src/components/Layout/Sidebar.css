@@ -81,9 +81,14 @@
    =================== */
 .sidebar__footer {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  padding: var(--space-md) var(--space-lg);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-sm) var(--space-lg);
   border-top: 1px solid var(--color-border);
+}
+
+.sidebar__version {
+  font-size: var(--font-size-caption);
   color: var(--color-slate-gray);
+  opacity: 0.6;
 }

@@ -247,7 +247,7 @@ export function CSVUpload({ onUploadComplete, onClear, onError }) {
         {uploadState === 'uploading' ? (
           <div className="csv-upload__loading">
             <div className="csv-upload__spinner" />
-            <p className="csv-upload__text">Uploading to server...</p>
+            <p className="csv-upload__text">Processing your data...</p>
             <div className="csv-upload__progress">
               <div 
                 className="csv-upload__progress-bar" 
@@ -262,11 +262,13 @@ export function CSVUpload({ onUploadComplete, onClear, onError }) {
           </div>
         ) : (
           <>
-            <div className="csv-upload__icon" aria-hidden="true">↑</div>
+            <div className="csv-upload__icon" aria-hidden="true">📁</div>
             <p className="csv-upload__text">
-              {dragActive ? 'Drop your CSV file here' : 'Drag and drop your CSV file here'}
+              {dragActive ? 'Drop your CSV file here' : 'Drop your equipment data CSV here'}
             </p>
-            <p className="csv-upload__subtext caption">or click to browse</p>
+            <p className="csv-upload__subtext caption">
+              or <span className="csv-upload__browse-link">browse files</span>
+            </p>
           </>
         )}
       </div>

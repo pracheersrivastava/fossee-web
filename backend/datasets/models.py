@@ -6,6 +6,7 @@ import os
 import uuid
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
 
 
@@ -24,7 +25,9 @@ class Dataset(models.Model):
     Model representing an uploaded CSV dataset for chemical equipment parameters.
     
     Stores metadata about the uploaded file and parsed data statistics.
-    Only the last MAX_DATASETS_HISTORY (default: 5) datasets are kept.
+    Only the last MAX_DATASETS_HISTORY (default: 5) datasets are kept per user.
+    
+    User field is optional - anonymous uploads don't get persisted to history.
     """
     
     id = models.UUIDField(
@@ -32,6 +35,16 @@ class Dataset(models.Model):
         default=uuid.uuid4, 
         editable=False,
         help_text="Unique identifier for the dataset"
+    )
+    
+    # User who uploaded this dataset (optional for anonymous uploads)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='datasets',
+        help_text="User who uploaded this dataset (null for anonymous)"
     )
     
     name = models.CharField(
@@ -121,6 +134,12 @@ class Dataset(models.Model):
         null=True,
         help_text="Error message if processing failed"
     )
+    
+    # Track temporary/anonymous uploads
+    is_temporary = models.BooleanField(
+        default=False,
+        help_text="Temporary upload that should be auto-deleted (anonymous users)"
+    )
 
     class Meta:
         ordering = ['-uploaded_at']
@@ -129,6 +148,7 @@ class Dataset(models.Model):
         indexes = [
             models.Index(fields=['-uploaded_at']),
             models.Index(fields=['is_active']),
+            models.Index(fields=['user', '-uploaded_at']),
         ]
 
     def __str__(self):
@@ -163,15 +183,26 @@ class Dataset(models.Model):
         return cls.objects.filter(is_active=True).first()
 
     @classmethod
-    def enforce_history_limit(cls):
+    def enforce_history_limit(cls, user=None):
         """
         Enforce the maximum number of datasets in history.
         Deletes oldest datasets beyond the limit.
+        
+        If user is specified, only enforces limit for that user's datasets.
+        Also cleans up old temporary datasets.
         """
         max_history = getattr(settings, 'MAX_DATASETS_HISTORY', 5)
-        datasets = cls.objects.all().order_by('-uploaded_at')
         
-        if datasets.count() > max_history:
-            datasets_to_delete = datasets[max_history:]
-            for dataset in datasets_to_delete:
-                dataset.delete()
+        if user:
+            # User-scoped history limit
+            datasets = cls.objects.filter(user=user).order_by('-uploaded_at')
+            if datasets.count() > max_history:
+                datasets_to_delete = datasets[max_history:]
+                for dataset in datasets_to_delete:
+                    dataset.delete()
+        
+        # Clean up old temporary datasets (older than 1 hour)
+        from django.utils import timezone
+        from datetime import timedelta
+        cutoff = timezone.now() - timedelta(hours=1)
+        cls.objects.filter(is_temporary=True, uploaded_at__lt=cutoff).delete()

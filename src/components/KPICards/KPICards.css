@@ -51,18 +51,19 @@
 
 /* ===================
    KPI ICON
+   IMPROVED SIZE
    =================== */
 .kpi-card__icon {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  font-size: 18px;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
   background-color: rgba(139, 92, 246, 0.1);
   color: var(--color-equipment);
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 /* ===================
@@ -77,12 +78,12 @@
 
 /* ===================
    KPI VALUE
-   Typography: H2 equivalent (18px, semibold)
+   Typography: IMPROVED (24px, semibold)
    =================== */
 .kpi-card__value {
-  font-size: var(--font-size-h2);
+  font-size: 24px;
   font-weight: var(--font-weight-semibold);
-  line-height: var(--line-height-h2);
+  line-height: 1.2;
   color: var(--color-deep-indigo);
   white-space: nowrap;
   overflow: hidden;

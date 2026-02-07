@@ -1,6 +1,6 @@
 /**
  * Header Styles
- * FOSSEE Scientific Analytics UI
+ * CHEM•VIZ - Chemical Equipment Parameter Visualizer
  */
 
 .header {
@@ -32,15 +32,65 @@
   letter-spacing: 0.5px;
 }
 
-.header__context {
-  display: flex;
-  align-items: center;
+.header__subtitle {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-regular);
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: var(--space-md);
+  padding-left: var(--space-md);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.header__fossee {
-  font-size: var(--font-size-caption);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-slate-gray);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+/* Auth actions */
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header__login-btn {
+  padding: 6px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.header__login-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* User display */
+.header__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header__user-icon {
+  font-size: 14px;
+}
+
+.header__username {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.header__logout-btn {
+  padding: 4px 12px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.header__logout-btn:hover {
+  color: #F87171;
 }

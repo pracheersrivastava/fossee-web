@@ -1,12 +1,12 @@
 /**
  * Summary Screen Component
- * FOSSEE Scientific Analytics UI
+ * CHEM•VIZ - Chemical Equipment Parameter Visualizer
  * 
  * Displays data summary after CSV upload:
  * - Summary card with file info
  * - KPI cards (Total equipment, Avg flowrate, Avg temperature, Dominant type)
  * - Data preview table
- * - Actions: Generate Analysis, Upload Different File
+ * - Actions: Generate Analysis, Export PDF, Upload Different File
  * 
  * Visual hierarchy per design.md Section 6:
  * 1. Summary Card
@@ -23,6 +23,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { SummaryKPIs } from '../KPICards';
 import { getDatasetSummary, APIError } from '../../services/api';
+import { generatePDFReport } from '../../services/pdfGenerator';
 import './SummaryScreen.css';
 
 /**
@@ -58,6 +59,26 @@ export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferen
   const [previewHeaders, setPreviewHeaders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [exportingPdf, setExportingPdf] = useState(false);
+
+  /**
+   * Handle PDF export
+   */
+  const handleExportPDF = useCallback(async () => {
+    if (!uploadData?.datasetId) {
+      return;
+    }
+
+    setExportingPdf(true);
+    try {
+      await generatePDFReport(uploadData.datasetId, `${uploadData.fileName || 'report'}.pdf`);
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      setError('Failed to generate PDF report. Please try again.');
+    } finally {
+      setExportingPdf(false);
+    }
+  }, [uploadData]);
 
   /**
    * Fetch summary data from API when datasetId changes
@@ -206,6 +227,14 @@ export function SummaryScreen({ uploadData, onGenerateAnalysis, onUploadDifferen
         <button 
           type="button" 
           className="btn btn--secondary"
+          onClick={handleExportPDF}
+          disabled={loading || exportingPdf}
+        >
+          {exportingPdf ? 'Generating PDF...' : 'Export PDF'}
+        </button>
+        <button 
+          type="button" 
+          className="btn btn--outline"
           onClick={onUploadDifferent}
         >
           Upload Different File

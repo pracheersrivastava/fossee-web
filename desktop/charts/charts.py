@@ -11,6 +11,8 @@ Charts:
 - Pressure Distribution (Bar)
 
 All charts follow design.md Section 5.5
+
+UPDATED: Now fetches chart data from backend API.
 """
 
 from typing import List, Optional, Dict, Any
@@ -25,15 +27,15 @@ import matplotlib.pyplot as plt
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
-    QSizePolicy
+    QSizePolicy, QApplication
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, pyqtSlot
 
-from ..core.tokens import (
+from core.tokens import (
     SPACE_MD, SPACE_LG, DEEP_INDIGO, PURE_WHITE,
     FONT_SIZE_H3, FONT_SIZE_CAPTION
 )
-from .chart_config import (
+from charts.chart_config import (
     apply_chart_style,
     EQUIPMENT_DISTRIBUTION_CONFIG,
     TEMPERATURE_LINE_CONFIG,
@@ -41,6 +43,28 @@ from .chart_config import (
     CHART_COLORS, UI_COLORS,
     get_bar_color, get_fill_color,
 )
+from core.api_client import api_client, APIError
+
+
+class AnalysisFetchWorker(QThread):
+    """Background worker for fetching analysis data from backend."""
+    
+    fetch_success = pyqtSignal(dict)
+    fetch_error = pyqtSignal(str)
+    
+    def __init__(self, dataset_id: str):
+        super().__init__()
+        self.dataset_id = dataset_id
+    
+    def run(self):
+        """Fetch analysis data from backend."""
+        try:
+            result = api_client.get_analysis(self.dataset_id)
+            self.fetch_success.emit(result)
+        except APIError as e:
+            self.fetch_error.emit(str(e.message))
+        except Exception as e:
+            self.fetch_error.emit(f"Failed to load analysis: {str(e)}")
 
 
 # Apply global style on module load
@@ -97,9 +121,10 @@ class ChartCard(QFrame):
         # Title
         title_label = QLabel(self._title)
         title_label.setStyleSheet(f"""
-            font-size: {FONT_SIZE_H3}px;
+            font-size: 20px;
             font-weight: 500;
             color: {DEEP_INDIGO};
+            padding-bottom: 8px;
         """)
         layout.addWidget(title_label)
         
@@ -424,15 +449,21 @@ class AnalysisCharts(QWidget):
     """
     Pre-configured Analysis Charts screen.
     
-    Displays all three charts with sample or provided data.
+    Displays all three charts with backend data.
     Matches React AnalysisCharts component.
+    
+    UPDATED: Now fetches analysis data from backend API.
     """
+    
+    analysis_loaded = pyqtSignal(dict)
+    analysis_error = pyqtSignal(str)
     
     def __init__(self, parent: Optional[QWidget] = None):
         super().__init__(parent)
-        self._data: Optional[Dict[str, Any]] = None
+        self._dataset_id: Optional[str] = None
+        self._analysis_data: Optional[Dict[str, Any]] = None
+        self._fetch_worker: Optional[AnalysisFetchWorker] = None
         self._setup_ui()
-        self._load_sample_data()
     
     def _setup_ui(self):
         """Initialize the analysis charts UI."""
@@ -440,9 +471,29 @@ class AnalysisCharts(QWidget):
         layout.setContentsMargins(SPACE_LG, SPACE_LG, SPACE_LG, SPACE_LG)
         layout.setSpacing(SPACE_LG)
         
+        # Loading label
+        self._loading_label = QLabel("Loading analysis...")
+        self._loading_label.setAlignment(Qt.AlignCenter)
+        self._loading_label.setStyleSheet("color: #2F80ED; font-size: 16px; padding: 40px;")
+        self._loading_label.setVisible(False)
+        layout.addWidget(self._loading_label)
+        
+        # Error label
+        self._error_label = QLabel()
+        self._error_label.setAlignment(Qt.AlignCenter)
+        self._error_label.setStyleSheet("color: #DC2626; font-size: 14px; padding: 20px;")
+        self._error_label.setVisible(False)
+        layout.addWidget(self._error_label)
+        
+        # Charts container
+        self._charts_container = QWidget()
+        charts_layout = QVBoxLayout(self._charts_container)
+        charts_layout.setContentsMargins(0, 0, 0, 0)
+        charts_layout.setSpacing(SPACE_LG)
+        
         # Equipment Distribution (full width)
         self._equipment_chart = EquipmentDistributionChart()
-        layout.addWidget(self._equipment_chart)
+        charts_layout.addWidget(self._equipment_chart)
         
         # Row for Temperature and Pressure
         row = QWidget()
@@ -456,103 +507,103 @@ class AnalysisCharts(QWidget):
         self._pressure_chart = PressureDistributionChart()
         row_layout.addWidget(self._pressure_chart)
         
-        layout.addWidget(row)
-        layout.addStretch()
+        charts_layout.addWidget(row)
+        charts_layout.addStretch()
+        
+        layout.addWidget(self._charts_container)
     
-    def _load_sample_data(self):
-        """Load sample data for demonstration."""
-        # Equipment distribution
+    def load_from_backend(self, dataset_id: str):
+        """Load analysis data from backend for the given dataset."""
+        if not dataset_id:
+            self._show_error("No dataset ID provided")
+            return
+        
+        self._dataset_id = dataset_id
+        
+        # Show loading state
+        self._loading_label.setVisible(True)
+        self._error_label.setVisible(False)
+        self._charts_container.setVisible(False)
+        QApplication.processEvents()
+        
+        # Fetch from backend
+        self._fetch_worker = AnalysisFetchWorker(dataset_id)
+        self._fetch_worker.fetch_success.connect(self._on_fetch_success)
+        self._fetch_worker.fetch_error.connect(self._on_fetch_error)
+        self._fetch_worker.start()
+    
+    @pyqtSlot(dict)
+    def _on_fetch_success(self, data: Dict[str, Any]):
+        """Handle successful analysis fetch."""
+        self._loading_label.setVisible(False)
+        self._charts_container.setVisible(True)
+        
+        self._analysis_data = data
+        
+        # Update charts with backend data
+        equipment_dist = data.get('equipment_type_distribution', {})
         self._equipment_chart.set_data(
-            labels=['Pump', 'Valve', 'Heat Exchanger', 'Reactor', 'Compressor'],
-            data=[24, 18, 12, 8, 6]
+            labels=equipment_dist.get('labels', []),
+            data=equipment_dist.get('data', [])
         )
         
-        # Temperature trend
+        temp_by_equip = data.get('temperature_by_equipment', {})
         self._temperature_chart.set_data(
-            labels=['EQ-001', 'EQ-002', 'EQ-003', 'EQ-004', 'EQ-005', 'EQ-006', 'EQ-007', 'EQ-008'],
-            data=[75, 82, 68, 91, 78, 85, 72, 88]
+            labels=temp_by_equip.get('labels', []),
+            data=temp_by_equip.get('data', [])
         )
         
-        # Pressure distribution
+        pressure_dist = data.get('pressure_distribution', {})
         self._pressure_chart.set_data(
-            labels=['0-2', '2-4', '4-6', '6-8', '8-10', '>10'],
-            data=[8, 15, 22, 12, 7, 4]
+            labels=pressure_dist.get('labels', []),
+            data=pressure_dist.get('data', [])
         )
+        
+        self.analysis_loaded.emit(data)
+    
+    @pyqtSlot(str)
+    def _on_fetch_error(self, error_message: str):
+        """Handle fetch error."""
+        self._loading_label.setVisible(False)
+        self._show_error(error_message)
+        self.analysis_error.emit(error_message)
+    
+    def _show_error(self, message: str):
+        """Display error message."""
+        self._error_label.setText(f"⚠ {message}")
+        self._error_label.setVisible(True)
+        self._charts_container.setVisible(False)
+    
+    def get_analysis_data(self) -> Optional[Dict[str, Any]]:
+        """Get the current analysis data."""
+        return self._analysis_data
+    
+    def get_dataset_id(self) -> Optional[str]:
+        """Get the current dataset ID."""
+        return self._dataset_id
     
     def set_data(self, data: Dict[str, Any]):
         """
-        Update charts with equipment data.
+        Update charts directly with data.
         
-        Expected data keys:
-        - rows: List of equipment records
+        For backward compatibility - but prefer load_from_backend.
         """
-        self._data = data
+        self._analysis_data = data
         
-        if not data or 'rows' not in data:
-            return
-        
-        processed = self._process_data(data['rows'])
-        
+        equipment_dist = data.get('equipment_type_distribution', {})
         self._equipment_chart.set_data(
-            labels=processed['equipment']['labels'],
-            data=processed['equipment']['data']
+            labels=equipment_dist.get('labels', []),
+            data=equipment_dist.get('data', [])
         )
         
+        temp_by_equip = data.get('temperature_by_equipment', {})
         self._temperature_chart.set_data(
-            labels=processed['temperature']['labels'],
-            data=processed['temperature']['data']
+            labels=temp_by_equip.get('labels', []),
+            data=temp_by_equip.get('data', [])
         )
         
+        pressure_dist = data.get('pressure_distribution', {})
         self._pressure_chart.set_data(
-            labels=processed['pressure']['labels'],
-            data=processed['pressure']['data']
+            labels=pressure_dist.get('labels', []),
+            data=pressure_dist.get('data', [])
         )
-    
-    def _process_data(self, rows: List[Dict]) -> Dict[str, Dict]:
-        """Process raw equipment data for charts."""
-        # Equipment type distribution
-        type_counts = {}
-        for row in rows:
-            eq_type = row.get('type') or row.get('equipment_type') or 'Unknown'
-            type_counts[eq_type] = type_counts.get(eq_type, 0) + 1
-        
-        # Temperature data (first 10)
-        temp_data = []
-        for i, row in enumerate(rows[:10]):
-            if 'temperature' in row:
-                temp_data.append({
-                    'label': row.get('id') or row.get('equipment_id') or f'EQ-{i+1:03d}',
-                    'value': float(row.get('temperature', 0))
-                })
-        
-        # Pressure distribution (binned)
-        pressure_bins = {'0-2': 0, '2-4': 0, '4-6': 0, '6-8': 0, '8-10': 0, '>10': 0}
-        for row in rows:
-            pressure = float(row.get('pressure', 0))
-            if pressure <= 2:
-                pressure_bins['0-2'] += 1
-            elif pressure <= 4:
-                pressure_bins['2-4'] += 1
-            elif pressure <= 6:
-                pressure_bins['4-6'] += 1
-            elif pressure <= 8:
-                pressure_bins['6-8'] += 1
-            elif pressure <= 10:
-                pressure_bins['8-10'] += 1
-            else:
-                pressure_bins['>10'] += 1
-        
-        return {
-            'equipment': {
-                'labels': list(type_counts.keys()),
-                'data': list(type_counts.values()),
-            },
-            'temperature': {
-                'labels': [d['label'] for d in temp_data],
-                'data': [d['value'] for d in temp_data],
-            },
-            'pressure': {
-                'labels': list(pressure_bins.keys()),
-                'data': list(pressure_bins.values()),
-            },
-        }

@@ -3,9 +3,14 @@ Core Package
 FOSSEE Scientific Analytics UI
 """
 
-from .tokens import *
+from core.tokens import *
+from core.api_client import ChemVizAPIClient, APIError, api_client
 
 __all__ = [
+    # API Client
+    "ChemVizAPIClient",
+    "APIError",
+    "api_client",
     # Colors
     "DEEP_INDIGO",
     "ACADEMIC_BLUE",

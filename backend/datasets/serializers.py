@@ -126,12 +126,16 @@ class DatasetUploadSerializer(serializers.ModelSerializer):
         """Create a new dataset from the uploaded file."""
         file = validated_data['file']
         name = validated_data.get('name') or file.name.rsplit('.', 1)[0]
+        user = validated_data.get('user')
+        is_temporary = validated_data.get('is_temporary', True)
         
         dataset = Dataset.objects.create(
             name=name,
             original_filename=file.name,
             file=file,
-            processing_status='pending'
+            processing_status='pending',
+            user=user,
+            is_temporary=is_temporary
         )
         
         return dataset

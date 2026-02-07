@@ -48,14 +48,15 @@
 
   /* ===================
      TYPOGRAPHY - Sizes
+     Increased for better readability per design.md
      =================== */
-  --font-size-h1: 24px;
-  --font-size-h2: 18px;
-  --font-size-h3: 16px;
-  --font-size-body: 14px;
-  --font-size-table: 13px;
-  --font-size-caption: 12px;
-  --font-size-meta: 11px;
+  --font-size-h1: 28px;
+  --font-size-h2: 20px;
+  --font-size-h3: 18px;
+  --font-size-body: 15px;
+  --font-size-table: 14px;
+  --font-size-caption: 13px;
+  --font-size-meta: 12px;
 
   /* ===================
      TYPOGRAPHY - Weights
@@ -84,6 +85,7 @@
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
+  --space-2xl: 40px;
   --space-xxl: 48px;
 
   /* ===================

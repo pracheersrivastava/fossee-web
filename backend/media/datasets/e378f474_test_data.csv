@@ -1,4 +1,0 @@
-?Equipment Name,Type,Flowrate,Pressure,Temperature
-Pump-001,Centrifugal,150.5,3.2,45.0
-Reactor-A,CSTR,200.0,5.5,120.0
-Heat-Ex-01,Shell-Tube,180.0,2.8,85.0

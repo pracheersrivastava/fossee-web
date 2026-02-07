@@ -5,7 +5,7 @@ FOSSEE Scientific Analytics UI
 Matplotlib chart widgets matching Chart.js versions.
 """
 
-from .charts import (
+from charts.charts import (
     ChartCanvas,
     ChartCard,
     EquipmentDistributionChart,
@@ -15,7 +15,7 @@ from .charts import (
     AnalysisCharts,
 )
 
-from .chart_config import (
+from charts.chart_config import (
     CHART_COLORS,
     UI_COLORS,
     apply_chart_style,

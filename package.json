@@ -1,7 +1,7 @@
 {
   "name": "chemviz-fossee",
   "version": "1.0.0",
-  "description": "FOSSEE Scientific Analytics - Chemical Equipment Parameter Visualizer",
+  "description": "CHEM•VIZ - Chemical Equipment Parameter Visualizer",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "chart.js": "^4.4.1",
+    "jspdf": "^2.5.2",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0"

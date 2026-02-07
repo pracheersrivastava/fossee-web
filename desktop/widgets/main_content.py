@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 
-from ..core.tokens import SPACE_LG, LAYOUT_MAX_WIDTH, LAYOUT_SIDEBAR_WIDTH
+from core.tokens import SPACE_LG, LAYOUT_MAX_WIDTH, LAYOUT_SIDEBAR_WIDTH
 
 
 class MainContent(QWidget):

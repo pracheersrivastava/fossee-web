@@ -60,6 +60,7 @@ function HistoryItem({
   rowCount,
   sparklineData,
   isSelected,
+  onSelect,
   onReanalyze, 
   onCompare 
 }) {
@@ -100,7 +101,12 @@ function HistoryItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="history-item__content">
+      <button 
+        type="button"
+        className="history-item__content"
+        onClick={() => onSelect?.(id)}
+        title={`View summary for ${filename}`}
+      >
         <div className="history-item__info">
           <span className="history-item__filename" title={filename}>
             {truncateFilename(filename)}
@@ -118,7 +124,7 @@ function HistoryItem({
             <Sparkline data={sparklineData} />
           </div>
         )}
-      </div>
+      </button>
 
       {/* Hover actions */}
       <div className={`history-item__actions ${isHovered ? 'history-item__actions--visible' : ''}`}>
@@ -144,14 +150,19 @@ function HistoryItem({
 /**
  * Dataset History List
  * Shows last 5 uploads with actions
+ * 
+ * NOTE: History is USER-SCOPED. Only shows datasets for the logged-in user.
+ * When not authenticated, displays a login prompt instead.
  */
 export function DatasetHistory({ 
   datasets = [], 
   selectedId,
   maxItems = 5,
+  onSelect,
   onReanalyze,
   onCompare,
-  onClearHistory
+  onClearHistory,
+  isAuthenticated = true
 }) {
   const displayedDatasets = datasets.slice(0, maxItems);
   const hasDatasets = displayedDatasets.length > 0;
@@ -171,7 +182,11 @@ export function DatasetHistory({
         )}
       </div>
 
-      {hasDatasets ? (
+      {!isAuthenticated ? (
+        <p className="dataset-history__empty dataset-history__empty--login">
+          Login to see your datasets
+        </p>
+      ) : hasDatasets ? (
         <ul className="dataset-history__list">
           {displayedDatasets.map((dataset) => (
             <HistoryItem
@@ -182,6 +197,7 @@ export function DatasetHistory({
               rowCount={dataset.rowCount}
               sparklineData={dataset.sparklineData}
               isSelected={dataset.id === selectedId}
+              onSelect={onSelect}
               onReanalyze={onReanalyze}
               onCompare={onCompare}
             />
@@ -191,7 +207,7 @@ export function DatasetHistory({
         <p className="dataset-history__empty">No recent datasets</p>
       )}
 
-      {datasets.length > maxItems && (
+      {isAuthenticated && datasets.length > maxItems && (
         <span className="dataset-history__more">
           +{datasets.length - maxItems} more
         </span>

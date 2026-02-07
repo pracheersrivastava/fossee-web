@@ -23,7 +23,7 @@ from PyQt5.QtCore import (
 )
 from PyQt5.QtGui import QColor, QFont, QPalette, QBrush
 
-from ..core.tokens import (
+from core.tokens import (
     DEEP_INDIGO, SLATE_GRAY, PURE_WHITE, OFF_WHITE,
     COLOR_TABLE_HEADER, COLOR_TABLE_ZEBRA, COLOR_GRIDLINE,
     COLOR_SUCCESS, COLOR_WARNING, COLOR_ERROR,

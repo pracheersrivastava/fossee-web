@@ -1,9 +1,9 @@
 """
 Config Package
-FOSSEE Scientific Analytics UI
+CHEM•VIZ - Chemical Equipment Parameter Visualizer
 """
 
-from .pdf_report_config import (
+from config.pdf_report_config import (
     PDF_CONFIG,
     PDFReportConfig,
     get_pdf_styles,
@@ -14,6 +14,8 @@ from .pdf_report_config import (
     DATA_TABLE_COLUMNS,
 )
 
+from config.pdf_generator import generate_pdf_report
+
 __all__ = [
     "PDF_CONFIG",
     "PDFReportConfig",
@@ -23,4 +25,5 @@ __all__ = [
     "SPACING",
     "CHART_DEFINITIONS",
     "DATA_TABLE_COLUMNS",
+    "generate_pdf_report",
 ]

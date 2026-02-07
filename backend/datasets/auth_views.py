@@ -66,7 +66,7 @@ def login(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])  # Allow even with invalid token
 def logout(request):
     """
     Logout endpoint - Deletes authentication token.
@@ -80,10 +80,13 @@ def logout(request):
     {
         "message": "Logout successful"
     }
+    
+    NOTE: Always returns success even if not logged in or token invalid.
     """
     try:
-        # Delete the user's token
-        request.user.auth_token.delete()
+        if request.user and request.user.is_authenticated:
+            # Delete the user's token
+            request.user.auth_token.delete()
         return Response({'message': 'Logout successful'})
     except Exception:
         return Response({'message': 'Logout successful'})

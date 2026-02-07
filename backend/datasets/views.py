@@ -99,6 +99,9 @@ def upload_csv(request):
     - row_count: Number of rows in the dataset
     - column_count: Number of columns
     - validation: Column validation status
+    
+    NOTE: If user is authenticated, dataset is saved to their history.
+    If anonymous, dataset is marked as temporary (auto-deleted after 1 hour).
     """
     serializer = CSVUploadSerializer(data=request.data)
     
@@ -142,9 +145,17 @@ def upload_csv(request):
         # Reset file pointer for storage
         uploaded_file.seek(0)
         
+        # Determine user - check if authenticated
+        user = None
+        is_temporary = True
+        if request.user and request.user.is_authenticated:
+            user = request.user
+            is_temporary = False
+        
         # Create dataset record
         dataset = Dataset.objects.create(
             name=dataset_name,
+            user=user,
             original_filename=uploaded_file.name,
             file=uploaded_file,
             file_size=uploaded_file.size,
@@ -156,13 +167,17 @@ def upload_csv(request):
             data_json=data_json,
             processing_status=processing_status,
             is_active=True,
+            is_temporary=is_temporary,
         )
         
-        # Deactivate other datasets
-        Dataset.objects.exclude(pk=dataset.pk).update(is_active=False)
+        # Deactivate other datasets (for this user or globally if anonymous)
+        if user:
+            Dataset.objects.filter(user=user).exclude(pk=dataset.pk).update(is_active=False)
+        else:
+            Dataset.objects.filter(user__isnull=True).exclude(pk=dataset.pk).update(is_active=False)
         
-        # Enforce history limit (keep only last 5)
-        Dataset.enforce_history_limit()
+        # Enforce history limit (per user)
+        Dataset.enforce_history_limit(user=user)
         
         # Build response
         response_data = {
@@ -173,6 +188,7 @@ def upload_csv(request):
             'message': message,
             'name': dataset.name,
             'uploaded_at': dataset.uploaded_at.isoformat(),
+            'is_authenticated': user is not None,
         }
         
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -407,8 +423,23 @@ def get_history(request):
     Returns:
     - Last 5 datasets ordered by most recent first
     - Each entry: id, filename, upload_time, row_count
+    
+    NOTE: Only returns datasets for the authenticated user.
+    Returns empty list for anonymous users.
     """
-    datasets = Dataset.objects.all().order_by('-uploaded_at')[:5]
+    # Check if user is authenticated
+    if not request.user or not request.user.is_authenticated:
+        return Response({
+            'count': 0,
+            'datasets': [],
+            'message': 'Login to see your dataset history'
+        })
+    
+    # Get user's datasets only
+    datasets = Dataset.objects.filter(
+        user=request.user,
+        is_temporary=False
+    ).order_by('-uploaded_at')[:5]
     
     history = []
     for ds in datasets:
@@ -454,11 +485,28 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         """
-        List all datasets in upload history.
+        List all datasets in upload history for the authenticated user.
         Returns the last N datasets based on MAX_DATASETS_HISTORY setting.
+        
+        For anonymous users, returns empty list.
         """
         max_history = getattr(settings, 'MAX_DATASETS_HISTORY', 5)
-        datasets = self.queryset.order_by('-uploaded_at')[:max_history]
+        
+        # Check if user is authenticated
+        if not request.user or not request.user.is_authenticated:
+            return Response({
+                'count': 0,
+                'max_history': max_history,
+                'datasets': [],
+                'message': 'Login to see your dataset history'
+            })
+        
+        # Get user's datasets only
+        datasets = Dataset.objects.filter(
+            user=request.user,
+            is_temporary=False
+        ).order_by('-uploaded_at')[:max_history]
+        
         serializer = DatasetListSerializer(datasets, many=True)
         return Response({
             'count': len(serializer.data),
@@ -489,7 +537,8 @@ class DatasetViewSet(viewsets.ModelViewSet):
         - Data preview (first 10 rows)
         - Full data as JSON
         
-        Enforces the maximum history limit after upload.
+        If user is authenticated, saves to their history.
+        If anonymous, marks as temporary (auto-deleted after 1 hour).
         """
         serializer = DatasetUploadSerializer(data=request.data)
         
@@ -500,24 +549,37 @@ class DatasetViewSet(viewsets.ModelViewSet):
             )
         
         try:
+            # Determine user - check if authenticated
+            user = None
+            is_temporary = True
+            if request.user and request.user.is_authenticated:
+                user = request.user
+                is_temporary = False
+            
             # Create the dataset record
-            dataset = serializer.save()
+            dataset = serializer.save(user=user, is_temporary=is_temporary)
             
             # Parse the CSV file
             self._parse_csv(dataset)
             
-            # Set as active dataset (deactivate others)
-            Dataset.objects.exclude(pk=dataset.pk).update(is_active=False)
+            # Set as active dataset (deactivate others for this user)
+            if user:
+                Dataset.objects.filter(user=user).exclude(pk=dataset.pk).update(is_active=False)
+            else:
+                Dataset.objects.filter(user__isnull=True).exclude(pk=dataset.pk).update(is_active=False)
             dataset.is_active = True
             dataset.save()
             
             # Enforce history limit
-            Dataset.enforce_history_limit()
+            Dataset.enforce_history_limit(user=user)
             
-            # Return the created dataset
+            # Return the created dataset with dataset_id for compatibility
             response_serializer = DatasetDetailSerializer(dataset)
+            response_data = response_serializer.data
+            # Add dataset_id alias for desktop/web compatibility
+            response_data['dataset_id'] = str(dataset.id)
             return Response(
-                response_serializer.data,
+                response_data,
                 status=status.HTTP_201_CREATED
             )
             
@@ -664,6 +726,60 @@ class DatasetViewSet(viewsets.ModelViewSet):
             return Response({
                 'message': f'Dataset "{name}" has been deleted'
             })
+        except Dataset.DoesNotExist:
+            return Response(
+                {'error': 'Dataset not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @action(detail=True, methods=['post'], url_path='claim')
+    def claim(self, request, pk=None):
+        """
+        Claim an anonymous dataset after login.
+        
+        POST /api/datasets/{id}/claim/
+        
+        This allows a user who uploaded while anonymous to claim the dataset
+        after logging in. The dataset must be anonymous (user=null) and
+        marked as temporary.
+        """
+        # Must be authenticated to claim
+        if not request.user or not request.user.is_authenticated:
+            return Response(
+                {'error': 'Authentication required to claim datasets'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        try:
+            dataset = Dataset.objects.get(pk=pk)
+            
+            # Check if dataset is already owned
+            if dataset.user is not None:
+                if dataset.user == request.user:
+                    return Response({
+                        'message': 'Dataset already belongs to you',
+                        'dataset_id': str(dataset.id)
+                    })
+                else:
+                    return Response(
+                        {'error': 'Dataset belongs to another user'},
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            
+            # Claim the dataset
+            dataset.user = request.user
+            dataset.is_temporary = False
+            dataset.save()
+            
+            # Enforce history limit for this user
+            Dataset.enforce_history_limit(user=request.user)
+            
+            return Response({
+                'message': 'Dataset claimed successfully',
+                'dataset_id': str(dataset.id),
+                'dataset': DatasetDetailSerializer(dataset).data
+            })
+            
         except Dataset.DoesNotExist:
             return Response(
                 {'error': 'Dataset not found'},

@@ -22,9 +22,11 @@ export function Sidebar({
   onNavigate,
   datasets = [],
   selectedDatasetId,
+  onSelectDataset,
   onReanalyze,
   onCompare,
-  onClearHistory
+  onClearHistory,
+  isAuthenticated = false
 }) {
   return (
     <aside className="sidebar">
@@ -52,15 +54,16 @@ export function Sidebar({
           datasets={datasets}
           selectedId={selectedDatasetId}
           maxItems={5}
+          onSelect={onSelectDataset}
           onReanalyze={onReanalyze}
           onCompare={onCompare}
           onClearHistory={onClearHistory}
+          isAuthenticated={isAuthenticated}
         />
       </div>
 
       <div className="sidebar__footer">
-        <span className="meta">FOSSEE Project</span>
-        <span className="meta">IIT Bombay</span>
+        <span className="sidebar__version">v1.0.0</span>
       </div>
     </aside>
   );

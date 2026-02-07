@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 from typing import Dict, Any
 
-from ..core.tokens import (
+from core.tokens import (
     DEEP_INDIGO, SLATE_GRAY, PURE_WHITE, OFF_WHITE,
     COLOR_FLOWRATE, COLOR_TEMPERATURE, COLOR_PRESSURE, COLOR_EQUIPMENT,
     COLOR_GRIDLINE, FONT_PRIMARY, FONT_FALLBACK,

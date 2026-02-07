@@ -4,6 +4,8 @@ FOSSEE Scientific Analytics UI
 
 Navigation sidebar with dataset history.
 Width: 240px, Background: Pure White (#FFFFFF)
+
+UPDATED: Added get_history_widget method for signal connections.
 """
 
 from typing import List, Dict, Any, Optional
@@ -14,8 +16,8 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, pyqtSignal
 
-from ..core.tokens import SPACE_XS, SPACE_SM, SPACE_MD, SPACE_LG
-from .dataset_history import DatasetHistory
+from core.tokens import SPACE_XS, SPACE_SM, SPACE_MD, SPACE_LG
+from widgets.dataset_history import DatasetHistory
 
 
 class NavItem(QPushButton):
@@ -93,20 +95,17 @@ class Sidebar(QWidget):
         footer_separator.setStyleSheet("background-color: #CBD5E1; max-height: 1px;")
         layout.addWidget(footer_separator)
 
-        # Footer
+        # Footer - Version info only
         footer_widget = QWidget()
         footer_widget.setObjectName("sidebarFooter")
         footer_layout = QVBoxLayout(footer_widget)
         footer_layout.setContentsMargins(SPACE_LG, SPACE_MD, SPACE_LG, SPACE_MD)
         footer_layout.setSpacing(SPACE_XS)
 
-        fossee_label = QLabel("FOSSEE Project")
-        fossee_label.setProperty("class", "sidebarFooterText")
-        footer_layout.addWidget(fossee_label)
-
-        iit_label = QLabel("IIT Bombay")
-        iit_label.setProperty("class", "sidebarFooterText")
-        footer_layout.addWidget(iit_label)
+        version_label = QLabel("CHEM•VIZ v1.0")
+        version_label.setProperty("class", "sidebarFooterText")
+        version_label.setStyleSheet("color: #6B7280; font-size: 11px;")
+        footer_layout.addWidget(version_label)
 
         layout.addWidget(footer_widget)
 
@@ -118,6 +117,10 @@ class Sidebar(QWidget):
         """Set the active navigation item."""
         if item_id in self._nav_buttons:
             self._nav_buttons[item_id].setChecked(True)
+
+    def get_history_widget(self) -> DatasetHistory:
+        """Get the dataset history widget for signal connections."""
+        return self._dataset_history
 
     def set_datasets(self, datasets: List[Dict[str, Any]]):
         """Set the dataset history."""

@@ -2,159 +2,138 @@
 KPI Card Widgets
 FOSSEE Scientific Analytics UI
 
-Summary KPI cards following design.md Section 5.3:
-- Background: White (#FFFFFF)
-- Radius: 8px
-- Padding: 16px
-- Shadow: 0px 2px 6px rgba(0,0,0,0.05)
-
-Visual parity with React implementation.
+Clean, simple KPI cards with no text truncation.
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, Dict, Any
 
 from PyQt5.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
-    QGridLayout, QSizePolicy
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QSizePolicy
 )
 from PyQt5.QtCore import Qt
 
-from ..core.tokens import (
-    SPACE_XS, SPACE_SM, SPACE_MD, SPACE_LG, SPACE_XL,
-    COLOR_FLOWRATE, COLOR_TEMPERATURE, COLOR_PRESSURE, COLOR_EQUIPMENT
-)
+
+# Colors
+COLOR_EQUIPMENT = "#8B5CF6"  # Violet
+COLOR_FLOWRATE = "#14B8A6"   # Teal
+COLOR_TEMPERATURE = "#F59E0B"  # Amber
 
 
 class KPICard(QFrame):
-    """
-    Individual KPI Card widget.
+    """Single KPI Card - clean and simple."""
     
-    Displays a single KPI with:
-    - Icon (optional, with accent color)
-    - Value (large, semibold)
-    - Unit (small, gray)
-    - Label (caption)
-    
-    Styling per design.md Section 5.3.
-    """
-    
-    def __init__(
-        self,
-        label: str,
-        value: str,
-        unit: str = "",
-        icon: str = "",
-        accent_color: str = COLOR_EQUIPMENT,
-        parent: Optional[QWidget] = None
-    ):
+    def __init__(self, label: str, value: str, unit: str = "", 
+                 icon: str = "", accent_color: str = COLOR_EQUIPMENT, parent=None):
         super().__init__(parent)
-        self.setObjectName("kpiCard")
-        self.setProperty("class", "card")
-        
         self._label = label
         self._value = value
         self._unit = unit
         self._icon = icon
-        self._accent_color = accent_color
+        self._accent = accent_color
         
+        self.setMinimumWidth(160)
+        self.setMinimumHeight(100)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._setup_ui()
+        self._apply_style()
     
     def _setup_ui(self):
-        """Initialize the KPI card UI."""
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(SPACE_MD, SPACE_MD, SPACE_MD, SPACE_MD)
-        layout.setSpacing(SPACE_MD)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
         
-        # Icon (if provided)
+        # Icon
         if self._icon:
             icon_label = QLabel(self._icon)
-            icon_label.setObjectName("kpiIcon")
             icon_label.setAlignment(Qt.AlignCenter)
-            icon_label.setFixedSize(40, 40)
-            # Apply accent color via inline style
+            icon_label.setFixedSize(44, 44)
             icon_label.setStyleSheet(f"""
-                background-color: {self._accent_color}15;
-                color: {self._accent_color};
-                border-radius: 8px;
-                font-size: 18px;
+                QLabel {{
+                    background-color: {self._accent}22;
+                    color: {self._accent};
+                    border-radius: 10px;
+                    font-size: 20px;
+                }}
             """)
             layout.addWidget(icon_label)
         
-        # Content (value + label)
+        # Content
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(SPACE_XS)
+        content_layout.setSpacing(2)
         
-        # Value row (value + unit)
-        value_widget = QWidget()
-        value_layout = QHBoxLayout(value_widget)
+        # Value + Unit row
+        value_row = QWidget()
+        value_layout = QHBoxLayout(value_row)
         value_layout.setContentsMargins(0, 0, 0, 0)
-        value_layout.setSpacing(2)
+        value_layout.setSpacing(4)
         value_layout.setAlignment(Qt.AlignLeft | Qt.AlignBaseline)
         
-        value_label = QLabel(self._value)
-        value_label.setObjectName("kpiValue")
-        value_layout.addWidget(value_label)
+        self._value_label = QLabel(self._value)
+        self._value_label.setStyleSheet("""
+            font-size: 28px;
+            font-weight: 700;
+            color: #0F172A;
+        """)
+        value_layout.addWidget(self._value_label)
         
         if self._unit:
-            unit_label = QLabel(self._unit)
-            unit_label.setObjectName("kpiUnit")
-            unit_label.setProperty("class", "caption")
-            value_layout.addWidget(unit_label)
+            self._unit_label = QLabel(self._unit)
+            self._unit_label.setStyleSheet("""
+                font-size: 13px;
+                font-weight: 500;
+                color: #64748B;
+            """)
+            value_layout.addWidget(self._unit_label)
         
         value_layout.addStretch()
-        content_layout.addWidget(value_widget)
+        content_layout.addWidget(value_row)
         
-        # Label
-        label_label = QLabel(self._label)
-        label_label.setObjectName("kpiLabel")
-        label_label.setProperty("class", "caption")
-        content_layout.addWidget(label_label)
+        # Label - NO TRUNCATION
+        self._label_label = QLabel(self._label)
+        self._label_label.setStyleSheet("""
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748B;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        """)
+        self._label_label.setWordWrap(False)
+        content_layout.addWidget(self._label_label)
         
-        layout.addWidget(content)
-        layout.addStretch()
+        layout.addWidget(content, 1)
+    
+    def _apply_style(self):
+        self.setStyleSheet("""
+            QFrame {
+                background-color: white;
+                border: 1px solid #E5E7EB;
+                border-radius: 12px;
+            }
+        """)
     
     def set_value(self, value: str, unit: str = ""):
-        """Update the KPI value."""
-        # Find and update the value label
-        value_label = self.findChild(QLabel, "kpiValue")
-        if value_label:
-            value_label.setText(value)
-        
-        if unit:
-            unit_label = self.findChild(QLabel, "kpiUnit")
-            if unit_label:
-                unit_label.setText(unit)
+        self._value_label.setText(value)
+        if unit and hasattr(self, '_unit_label'):
+            self._unit_label.setText(unit)
 
 
 class KPIGrid(QWidget):
-    """
-    Responsive grid layout for KPI cards.
+    """Horizontal grid of KPI cards."""
     
-    Displays KPI cards in a 4-column grid with proper spacing.
-    """
-    
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self.setObjectName("kpiGrid")
-        self._cards: List[KPICard] = []
-        self._setup_ui()
-    
-    def _setup_ui(self):
-        """Initialize the grid layout."""
+        self._cards = []
         self._layout = QHBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(SPACE_LG)
+        self._layout.setSpacing(16)
     
     def add_card(self, card: KPICard):
-        """Add a KPI card to the grid."""
         self._cards.append(card)
-        card.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self._layout.addWidget(card)
     
     def clear(self):
-        """Remove all cards from the grid."""
         for card in self._cards:
             self._layout.removeWidget(card)
             card.deleteLater()
@@ -162,23 +141,14 @@ class KPIGrid(QWidget):
 
 
 class SummaryKPIs(QWidget):
-    """
-    Pre-configured Summary KPIs widget.
+    """Pre-configured Summary KPIs widget."""
     
-    Displays equipment data KPIs:
-    - Total Equipment (Violet)
-    - Avg. Flowrate (Teal)
-    - Avg. Temperature (Amber)
-    - Dominant Type (Violet)
-    """
-    
-    def __init__(self, parent: Optional[QWidget] = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
-        self._data: Dict[str, Any] = {}
+        self._data = {}
         self._setup_ui()
     
     def _setup_ui(self):
-        """Initialize the Summary KPIs."""
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
@@ -187,7 +157,7 @@ class SummaryKPIs(QWidget):
         
         # Total Equipment
         self._equipment_card = KPICard(
-            label="Total Equipment",
+            label="TOTAL EQUIP.",
             value="0",
             icon="⚙",
             accent_color=COLOR_EQUIPMENT
@@ -196,27 +166,27 @@ class SummaryKPIs(QWidget):
         
         # Avg. Flowrate
         self._flowrate_card = KPICard(
-            label="Avg. Flowrate",
+            label="AVG. FLOW",
             value="0.0",
-            unit=" m³/hr",
+            unit="m³/hr",
             icon="◎",
             accent_color=COLOR_FLOWRATE
         )
         self._grid.add_card(self._flowrate_card)
         
         # Avg. Temperature
-        self._temperature_card = KPICard(
-            label="Avg. Temperature",
+        self._temp_card = KPICard(
+            label="AVG. TEMP",
             value="0.0",
             unit="°C",
             icon="◐",
             accent_color=COLOR_TEMPERATURE
         )
-        self._grid.add_card(self._temperature_card)
+        self._grid.add_card(self._temp_card)
         
         # Dominant Type
         self._type_card = KPICard(
-            label="Dominant Type",
+            label="DOM. TYPE",
             value="—",
             icon="▣",
             accent_color=COLOR_EQUIPMENT
@@ -226,23 +196,15 @@ class SummaryKPIs(QWidget):
         layout.addWidget(self._grid)
     
     def set_data(self, data: Dict[str, Any]):
-        """
-        Update KPIs with new data.
-        
-        Expected data keys:
-        - totalEquipment: int
-        - avgFlowrate: float
-        - avgTemperature: float
-        - dominantType: str
-        """
+        """Update KPIs with new data."""
         self._data = data
         
-        total_equipment = data.get('totalEquipment', 0)
-        avg_flowrate = data.get('avgFlowrate', 0.0)
-        avg_temperature = data.get('avgTemperature', 0.0)
-        dominant_type = data.get('dominantType', '—')
+        total = data.get('totalEquipment') or 0
+        flow = data.get('avgFlowrate') or 0.0
+        temp = data.get('avgTemperature') or 0.0
+        dtype = data.get('dominantType') or '—'
         
-        self._equipment_card.set_value(f"{total_equipment:,}")
-        self._flowrate_card.set_value(f"{avg_flowrate:.1f}", " m³/hr")
-        self._temperature_card.set_value(f"{avg_temperature:.1f}", "°C")
-        self._type_card.set_value(dominant_type)
+        self._equipment_card.set_value(f"{int(total):,}")
+        self._flowrate_card.set_value(f"{float(flow):.1f}", "m³/hr")
+        self._temp_card.set_value(f"{float(temp):.1f}", "°C")
+        self._type_card.set_value(str(dtype) if dtype else '—')

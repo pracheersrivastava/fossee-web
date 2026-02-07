@@ -1,24 +1,28 @@
 """
 Widgets Package
-FOSSEE Scientific Analytics UI
+CHEM•VIZ - Chemical Equipment Parameter Visualizer
 """
 
-from .header import Header
-from .sidebar import Sidebar
-from .main_content import MainContent, ScreenPlaceholder
-from .csv_upload import CSVUpload, DropZone, SummaryCard, StatusBadge
-from .kpi_cards import KPICard, KPIGrid, SummaryKPIs
-from .summary_screen import SummaryScreen, FileInfoCard
-from .data_table import (
+from widgets.header import Header
+from widgets.sidebar import Sidebar
+from widgets.main_content import MainContent, ScreenPlaceholder
+from widgets.csv_upload import CSVUpload, DropZone, SummaryCard, StatusBadge
+from widgets.kpi_cards import KPICard, KPIGrid, SummaryKPIs
+from widgets.summary_screen import SummaryScreen, FileInfoCard
+from widgets.data_table import (
     EquipmentTableModel,
     EquipmentTableView,
     DataTableCard,
     EquipmentDataTable,
 )
-from .dataset_history import (
+from widgets.dataset_history import (
     DatasetHistory,
     HistoryItem,
-    Sparkline,
+)
+from widgets.auth_dialog import (
+    AuthDialog,
+    UserMenuWidget,
+    show_login_dialog,
 )
 
 __all__ = [
@@ -41,5 +45,7 @@ __all__ = [
     "EquipmentDataTable",
     "DatasetHistory",
     "HistoryItem",
-    "Sparkline",
+    "AuthDialog",
+    "UserMenuWidget",
+    "show_login_dialog",
 ]
