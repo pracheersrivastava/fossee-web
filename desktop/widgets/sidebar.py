@@ -5,7 +5,11 @@ FOSSEE Scientific Analytics UI
 Navigation sidebar with dataset history.
 Width: 240px, Background: Pure White (#FFFFFF)
 
-UPDATED: Added get_history_widget method for signal connections.
+Per design.md tokens:
+- Sidebar Width: 240px
+- Border: #CBD5E1
+- Nav item active: border-left #2F80ED, text #2F80ED
+- Slate Gray for inactive: #6B7280
 """
 
 from typing import List, Dict, Any, Optional
@@ -30,6 +34,30 @@ class NavItem(QPushButton):
         self.setProperty("class", "navItem")
         self.setCheckable(True)
         self.setCursor(Qt.PointingHandCursor)
+        # Inline style for reliable rendering per design.md
+        self.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                border: none;
+                border-left: 3px solid transparent;
+                color: #6B7280;
+                font-size: 14px;
+                font-weight: 400;
+                padding: 12px 24px;
+                text-align: left;
+                min-height: 44px;
+            }
+            QPushButton:hover {
+                background-color: #F8FAFC;
+                color: #1E2A38;
+            }
+            QPushButton:checked {
+                background-color: #F8FAFC;
+                border-left: 3px solid #2F80ED;
+                color: #2F80ED;
+                font-weight: 500;
+            }
+        """)
 
 
 class Sidebar(QWidget):
@@ -76,7 +104,7 @@ class Sidebar(QWidget):
         # Spacer before history
         layout.addSpacing(SPACE_MD)
 
-        # History section separator
+        # History section separator - Border color from design.md
         history_separator = QFrame()
         history_separator.setFrameShape(QFrame.HLine)
         history_separator.setStyleSheet("background-color: #CBD5E1; max-height: 1px;")
@@ -89,7 +117,7 @@ class Sidebar(QWidget):
         self._dataset_history.clear_history_clicked.connect(self.clear_history_clicked.emit)
         layout.addWidget(self._dataset_history, 1)
 
-        # Footer separator
+        # Footer separator - Border color from design.md
         footer_separator = QFrame()
         footer_separator.setFrameShape(QFrame.HLine)
         footer_separator.setStyleSheet("background-color: #CBD5E1; max-height: 1px;")
@@ -102,6 +130,7 @@ class Sidebar(QWidget):
         footer_layout.setContentsMargins(SPACE_LG, SPACE_MD, SPACE_LG, SPACE_MD)
         footer_layout.setSpacing(SPACE_XS)
 
+        # Slate Gray for secondary text per design.md
         version_label = QLabel("CHEM•VIZ v1.0")
         version_label.setProperty("class", "sidebarFooterText")
         version_label.setStyleSheet("color: #6B7280; font-size: 11px;")

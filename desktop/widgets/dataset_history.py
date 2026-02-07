@@ -3,6 +3,14 @@ Dataset History Widget
 FOSSEE Scientific Analytics UI
 
 Displays recent datasets in sidebar - matches Web implementation exactly.
+
+Per design.md tokens:
+- Deep Indigo (text): #1E2A38
+- Slate Gray (secondary): #6B7280
+- Academic Blue (active): #2F80ED
+- Off-White (hover): #F8FAFC
+- Success (reanalyze): #22C55E
+- Error (clear): #DC2626
 """
 
 from typing import List, Dict, Any, Optional
@@ -68,7 +76,7 @@ class HistoryItem(QFrame):
         info_layout.setContentsMargins(0, 0, 0, 0)
         info_layout.setSpacing(2)
         
-        # Filename
+        # Filename - Deep Indigo per design.md
         name_label = QLabel(self._truncate(self._filename, 20))
         name_label.setToolTip(self._filename)
         name_label.setStyleSheet("""
@@ -84,6 +92,7 @@ class HistoryItem(QFrame):
         meta_layout.setContentsMargins(0, 0, 0, 0)
         meta_layout.setSpacing(4)
         
+        # Slate Gray for meta text per design.md
         time_label = QLabel(self._format_time(self._timestamp))
         time_label.setStyleSheet("font-size: 11px; color: #6B7280;")
         meta_layout.addWidget(time_label)
@@ -153,6 +162,7 @@ class HistoryItem(QFrame):
         return ts.strftime("%b %d")
     
     def _apply_style(self):
+        # Academic Blue border for selected per design.md
         if self._is_selected:
             self.setStyleSheet("""
                 QFrame {
@@ -164,7 +174,7 @@ class HistoryItem(QFrame):
             self.setStyleSheet("""
                 QFrame {
                     background-color: white;
-                    border-bottom: 1px solid #F1F5F9;
+                    border-bottom: 1px solid #E5E7EB;
                 }
                 QFrame:hover {
                     background-color: #F8FAFC;

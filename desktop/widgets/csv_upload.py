@@ -380,10 +380,10 @@ class CSVUpload(QWidget):
         self._drop_zone.file_dropped.connect(self._handle_file)
         self._layout.addWidget(self._drop_zone)
         
-        # Loading label (hidden by default)
+        # Loading label (hidden by default) - Academic Blue per design.md
         self._loading_label = QLabel("Uploading to server...")
         self._loading_label.setAlignment(Qt.AlignCenter)
-        self._loading_label.setStyleSheet("color: #2F80ED; font-weight: 500;")
+        self._loading_label.setStyleSheet("color: #2F80ED; font-weight: 500; font-size: 14px;")
         self._loading_label.setVisible(False)
         self._layout.addWidget(self._loading_label)
         
@@ -471,9 +471,9 @@ class CSVUpload(QWidget):
         self._show_error(error_message)
     
     def _show_error(self, message: str):
-        """Display error message."""
+        """Display error message. Error color from design.md."""
         self._error_label.setText(f"⚠ {message}")
-        self._error_label.setStyleSheet("color: #DC2626;")
+        self._error_label.setStyleSheet("color: #DC2626; font-size: 14px;")
         self._error_label.setVisible(True)
     
     def _hide_error(self):

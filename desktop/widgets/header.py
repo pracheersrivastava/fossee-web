@@ -4,6 +4,11 @@ CHEM•VIZ - Chemical Equipment Parameter Visualizer
 
 Persistent header with app title and user menu.
 Height: 56px, Background: Deep Indigo (#1E2A38)
+
+Per design.md tokens:
+- Deep Indigo: #1E2A38 (header bg)
+- Academic Blue: #2F80ED (logo)
+- Font: Source Sans 3, 18px/600 for title
 """
 
 from typing import Optional, Dict, Any
@@ -37,14 +42,24 @@ class Header(QWidget):
         brand_layout = QHBoxLayout()
         brand_layout.setSpacing(SPACE_SM)
 
-        # Logo
+        # Logo - Academic Blue per design.md
         logo_label = QLabel("⬡")
         logo_label.setObjectName("headerLogo")
+        logo_label.setStyleSheet("""
+            color: #2F80ED;
+            font-size: 24px;
+        """)
         brand_layout.addWidget(logo_label)
 
-        # Title
+        # Title - 18px/600 per design.md
         title_label = QLabel("CHEM•VIZ")
         title_label.setObjectName("headerTitle")
+        title_label.setStyleSheet("""
+            color: #FFFFFF;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        """)
         brand_layout.addWidget(title_label)
 
         layout.addLayout(brand_layout)
@@ -62,11 +77,13 @@ class Header(QWidget):
         self._login_btn.setStyleSheet("""
             QPushButton {
                 background: rgba(255, 255, 255, 0.1);
-                color: white;
+                color: #FFFFFF;
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 border-radius: 4px;
                 padding: 6px 16px;
                 font-size: 13px;
+                font-weight: 500;
+                min-height: 32px;
             }
             QPushButton:hover {
                 background: rgba(255, 255, 255, 0.2);
@@ -82,6 +99,7 @@ class Header(QWidget):
         self._user_label.setStyleSheet("""
             color: rgba(255, 255, 255, 0.9);
             font-size: 13px;
+            font-weight: 500;
         """)
         self._user_label.hide()
         self._user_section.addWidget(self._user_label)
@@ -96,6 +114,7 @@ class Header(QWidget):
                 border: none;
                 padding: 6px 12px;
                 font-size: 12px;
+                min-height: 32px;
             }
             QPushButton:hover {
                 color: #F87171;

@@ -221,7 +221,7 @@ class SummaryScreen(QWidget):
         layout.setContentsMargins(SPACE_LG, SPACE_LG, SPACE_LG, SPACE_LG)
         layout.setSpacing(SPACE_LG)
         
-        # Page header
+        # Page header - H1: 24px/600 per design.md
         header = QWidget()
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
@@ -229,7 +229,7 @@ class SummaryScreen(QWidget):
         title = QLabel("Data Summary")
         title.setProperty("class", "h1")
         title.setStyleSheet("""
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 600;
             color: #1E2A38;
             padding-bottom: 8px;
@@ -239,7 +239,7 @@ class SummaryScreen(QWidget):
         
         layout.addWidget(header)
         
-        # Loading label
+        # Loading label - Academic Blue per design.md
         self._loading_label = QLabel("Loading summary...")
         self._loading_label.setAlignment(Qt.AlignCenter)
         self._loading_label.setStyleSheet("color: #2F80ED; font-size: 16px; padding: 40px;")
@@ -263,7 +263,7 @@ class SummaryScreen(QWidget):
         self._file_info = FileInfoCard()
         content_layout.addWidget(self._file_info)
         
-        # KPIs section
+        # KPIs section - H2: 18px/500 per design.md
         kpi_section = QWidget()
         kpi_layout = QVBoxLayout(kpi_section)
         kpi_layout.setContentsMargins(0, 0, 0, 0)
@@ -271,7 +271,7 @@ class SummaryScreen(QWidget):
         
         kpi_title = QLabel("Key Metrics")
         kpi_title.setStyleSheet("""
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 500;
             color: #1E2A38;
             padding-bottom: 8px;

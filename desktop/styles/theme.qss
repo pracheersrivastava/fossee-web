@@ -1,207 +1,311 @@
 /**
- * CHEM•VIZ - Clean PyQt5 Theme
- * Minimal, Working Styles
+ * CHEM•VIZ - Chemical Equipment Parameter Visualizer
+ * PyQt5 Design System Theme
+ * 
+ * Based on FOSSEE Scientific Analytics UI (design.md v1.0)
+ * All values match design.md tokens exactly.
+ * 
+ * COLOR TOKENS (from design.md):
+ * - Deep Indigo (Primary Text/Header): #1E2A38
+ * - Academic Blue (Primary Action): #2F80ED
+ * - Slate Gray (Secondary Text): #6B7280
+ * - Off-White (Background): #F8FAFC
+ * - Pure White (Surface): #FFFFFF
+ * - Border: #CBD5E1
+ * - Gridline: #E5E7EB
+ * 
+ * TYPOGRAPHY (from design.md):
+ * - Font: Source Sans 3, Roboto, Arial
+ * - H1: 24px/600, H2: 18px/500, H3: 16px/500
+ * - Body: 14px/400, Table: 13px/400, Caption: 12px/400
+ * 
+ * SPACING (8px base system):
+ * - xs: 4px, sm: 8px, md: 16px, lg: 24px, xl: 32px
  */
 
 /* ===================
-   GLOBAL
+   GLOBAL RESET
    =================== */
 * {
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Source Sans 3", "Segoe UI", "Roboto", "Arial", sans-serif;
     font-size: 14px;
+    outline: none;
 }
 
 QMainWindow {
-    background-color: #F1F5F9;
+    background-color: #F8FAFC;
 }
 
 QWidget {
-    color: #1E293B;
+    color: #1E2A38;
     background-color: transparent;
 }
 
 /* ===================
    HEADER
+   design.md: Height 56px, Deep Indigo background
    =================== */
 QWidget#header {
-    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-        stop:0 #1E293B, stop:1 #0F172A);
-    min-height: 64px;
-    max-height: 64px;
+    background-color: #1E2A38;
+    min-height: 56px;
+    max-height: 56px;
 }
 
 QLabel#headerLogo {
-    color: #3B82F6;
-    font-size: 28px;
+    color: #2F80ED;
+    font-size: 24px;
 }
 
 QLabel#headerTitle {
-    color: #F8FAFC;
-    font-size: 20px;
+    color: #FFFFFF;
+    font-size: 18px;
     font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 /* ===================
    SIDEBAR
+   design.md: Width 240px, Pure White, border-right
    =================== */
 QWidget#sidebar {
     background-color: #FFFFFF;
-    border-right: 1px solid #E2E8F0;
-    min-width: 260px;
-    max-width: 260px;
+    border-right: 1px solid #CBD5E1;
+    min-width: 240px;
+    max-width: 240px;
 }
 
+/* Navigation Items */
 QPushButton.navItem {
     background-color: transparent;
     border: none;
     border-left: 3px solid transparent;
-    color: #64748B;
+    color: #6B7280;
     font-size: 14px;
-    font-weight: 500;
-    padding: 14px 20px;
+    font-weight: 400;
+    padding: 8px 24px;
     text-align: left;
 }
 
 QPushButton.navItem:hover {
     background-color: #F8FAFC;
-    color: #1E293B;
+    color: #1E2A38;
 }
 
 QPushButton.navItem:checked {
-    background-color: #EFF6FF;
-    border-left: 3px solid #3B82F6;
-    color: #3B82F6;
-    font-weight: 600;
+    background-color: #F8FAFC;
+    border-left: 3px solid #2F80ED;
+    color: #2F80ED;
+    font-weight: 500;
 }
 
 /* ===================
    MAIN CONTENT
+   design.md: Off-White background (#F8FAFC)
    =================== */
 QWidget#mainContent {
     background-color: #F8FAFC;
 }
 
-QLabel#pageTitle {
-    color: #0F172A;
-    font-size: 28px;
-    font-weight: 700;
+QScrollArea#mainScrollArea {
+    background-color: #F8FAFC;
+    border: none;
+}
+
+QWidget#mainContentInner {
+    background-color: #F8FAFC;
+}
+
+/* Page Titles - H1: 24px/600 */
+QLabel.h1 {
+    color: #1E2A38;
+    font-size: 24px;
+    font-weight: 600;
+    padding-bottom: 16px;
+}
+
+/* Section Headers - H2: 18px/500 */
+QLabel.h2 {
+    color: #1E2A38;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Subsection Headers - H3: 16px/500 */
+QLabel.h3 {
+    color: #1E2A38;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Body Text - 14px/400 */
+QLabel.body {
+    color: #1E2A38;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+/* Caption Text - 12px/400, Slate Gray */
+QLabel.caption {
+    color: #6B7280;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 /* ===================
    CARDS
+   design.md Section 5.3:
+   - Background: White, Radius: 8px
+   - Padding: 16px
+   - Shadow: 0px 2px 6px rgba(0,0,0,0.05)
    =================== */
-QFrame.card, QFrame#summaryCard, QFrame#kpiCard {
+QFrame.card,
+QFrame#summaryCard,
+QFrame#kpiCard,
+QFrame#fileInfoCard,
+QFrame#tableCard {
     background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 12px;
+    border-radius: 8px;
 }
 
 /* ===================
-   UPLOAD DROP ZONE
+   CSV UPLOAD ZONE
+   design.md Section 5.2:
+   - Border: 2px dashed #CBD5E1
+   - Radius: 8px
+   - Background: #F8FAFC
+   - Hover: border → #2F80ED
    =================== */
 QFrame#uploadDropZone {
-    background-color: #FAFBFC;
+    background-color: #F8FAFC;
     border: 2px dashed #CBD5E1;
-    border-radius: 12px;
+    border-radius: 8px;
 }
 
 QFrame#uploadDropZone:hover,
 QFrame#uploadDropZone[dragActive="true"] {
-    border-color: #3B82F6;
-    background-color: #EFF6FF;
+    border-color: #2F80ED;
+    background-color: rgba(47, 128, 237, 0.05);
 }
 
 QLabel#uploadIcon {
-    background-color: #EFF6FF;
-    color: #3B82F6;
+    background-color: rgba(47, 128, 237, 0.1);
+    color: #2F80ED;
     border-radius: 32px;
     font-size: 24px;
 }
 
 QLabel#uploadText {
-    color: #1E293B;
+    color: #1E2A38;
     font-size: 16px;
     font-weight: 500;
 }
 
 QLabel#uploadSubtext {
-    color: #3B82F6;
+    color: #2F80ED;
     font-size: 14px;
 }
 
 /* ===================
    BUTTONS
+   design.md Section 5.1:
+   - Height: 40px, Radius: 6px
+   - Primary: #2F80ED bg, white text
+   - Secondary: transparent, border #CBD5E1
    =================== */
 QPushButton {
-    padding: 10px 20px;
-    border-radius: 8px;
+    min-height: 40px;
+    padding: 0 24px;
+    border-radius: 6px;
+    font-size: 14px;
     font-weight: 500;
 }
 
-QPushButton#primaryButton, QPushButton.primary {
-    background-color: #3B82F6;
+QPushButton.primary,
+QPushButton#primaryButton {
+    background-color: #2F80ED;
     border: none;
-    color: white;
+    color: #FFFFFF;
 }
 
-QPushButton#primaryButton:hover, QPushButton.primary:hover {
+QPushButton.primary:hover,
+QPushButton#primaryButton:hover {
     background-color: #2563EB;
 }
 
-QPushButton#secondaryButton, QPushButton.secondary {
-    background-color: white;
-    border: 1px solid #E5E7EB;
-    color: #374151;
+QPushButton.primary:pressed,
+QPushButton#primaryButton:pressed {
+    background-color: #1D4ED8;
 }
 
-QPushButton#secondaryButton:hover, QPushButton.secondary:hover {
-    background-color: #F9FAFB;
-    border-color: #D1D5DB;
+QPushButton.secondary,
+QPushButton#secondaryButton {
+    background-color: transparent;
+    border: 1px solid #CBD5E1;
+    color: #1E2A38;
+}
+
+QPushButton.secondary:hover,
+QPushButton#secondaryButton:hover {
+    border-color: #2F80ED;
+    color: #2F80ED;
+    background-color: rgba(47, 128, 237, 0.05);
 }
 
 /* ===================
    TABLES
+   design.md Section 5.4:
+   - Header: #F1F5F9
+   - Row height: 44px
+   - Zebra: #FAFAFA
+   - No vertical grid lines
    =================== */
 QTableView {
-    background-color: white;
+    background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
     border-radius: 8px;
-    gridline-color: #F1F5F9;
+    gridline-color: #E5E7EB;
 }
 
 QTableView::item {
-    padding: 8px 12px;
+    padding: 0 16px;
+    border-bottom: 1px solid #E5E7EB;
 }
 
 QTableView::item:selected {
-    background-color: #EFF6FF;
-    color: #1E293B;
+    background-color: #DBEAFE;
+    color: #1E2A38;
+}
+
+QTableView::item:hover {
+    background-color: #F8FAFC;
 }
 
 QHeaderView::section {
-    background-color: #F8FAFC;
-    color: #64748B;
-    font-weight: 600;
-    font-size: 11px;
-    text-transform: uppercase;
-    padding: 10px 12px;
+    background-color: #F1F5F9;
+    color: #1E2A38;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 0 16px;
+    height: 44px;
     border: none;
     border-bottom: 1px solid #E5E7EB;
 }
 
 /* ===================
    SCROLLBARS
+   Subtle, minimal design
    =================== */
 QScrollBar:vertical {
-    background-color: #F8FAFC;
-    width: 10px;
-    border-radius: 5px;
+    background-color: transparent;
+    width: 8px;
+    margin: 4px 2px;
 }
 
 QScrollBar::handle:vertical {
     background-color: #CBD5E1;
-    border-radius: 5px;
-    min-height: 30px;
+    border-radius: 4px;
+    min-height: 40px;
 }
 
 QScrollBar::handle:vertical:hover {
@@ -209,43 +313,42 @@ QScrollBar::handle:vertical:hover {
 }
 
 QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
+QScrollBar::sub-line:vertical,
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
     height: 0;
+    background: transparent;
 }
 
-/* ===================
-   AUTH BUTTONS
-   =================== */
-QPushButton#loginButton {
+QScrollBar:horizontal {
     background-color: transparent;
-    border: 1px solid #475569;
-    border-radius: 6px;
-    color: #F8FAFC;
-    font-size: 13px;
-    padding: 8px 16px;
+    height: 8px;
+    margin: 2px 4px;
 }
 
-QPushButton#loginButton:hover {
-    background-color: #334155;
-    border-color: #64748B;
+QScrollBar::handle:horizontal {
+    background-color: #CBD5E1;
+    border-radius: 4px;
+    min-width: 40px;
 }
 
-QPushButton#userMenuButton {
-    background-color: transparent;
-    border: none;
-    color: #F8FAFC;
-    font-size: 13px;
-    padding: 8px 12px;
+QScrollBar::handle:horizontal:hover {
+    background-color: #94A3B8;
 }
 
-QPushButton#userMenuButton:hover {
-    background-color: #334155;
-    border-radius: 6px;
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    width: 0;
+    background: transparent;
 }
 
 /* ===================
    STATUS BADGES
+   design.md Section 2.3
    =================== */
+QLabel#validationStatus[status="success"],
 QLabel#statusBadge_success {
     background-color: #DCFCE7;
     color: #166534;
@@ -255,6 +358,7 @@ QLabel#statusBadge_success {
     font-weight: 500;
 }
 
+QLabel#validationStatus[status="warning"],
 QLabel#statusBadge_warning {
     background-color: #FEF3C7;
     color: #92400E;
@@ -264,6 +368,7 @@ QLabel#statusBadge_warning {
     font-weight: 500;
 }
 
+QLabel#validationStatus[status="error"],
 QLabel#statusBadge_error {
     background-color: #FEE2E2;
     color: #991B1B;
@@ -274,20 +379,88 @@ QLabel#statusBadge_error {
 }
 
 /* ===================
-   DIALOGS
+   DIALOGS & INPUTS
    =================== */
 QDialog {
-    background-color: white;
+    background-color: #FFFFFF;
 }
 
 QLineEdit {
-    background-color: white;
+    background-color: #FFFFFF;
     border: 1px solid #E5E7EB;
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 10px 12px;
     font-size: 14px;
+    color: #1E2A38;
+    min-height: 40px;
 }
 
 QLineEdit:focus {
-    border-color: #3B82F6;
+    border-color: #2F80ED;
+}
+
+QLineEdit::placeholder {
+    color: #9CA3AF;
+}
+
+/* ===================
+   TOOLTIPS
+   design.md: Tooltip bg Dark Indigo @ 90%
+   =================== */
+QToolTip {
+    background-color: rgba(30, 42, 56, 0.95);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+
+/* ===================
+   COMBOBOX
+   =================== */
+QComboBox {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    padding: 8px 12px;
+    min-height: 40px;
+    color: #1E2A38;
+}
+
+QComboBox:hover {
+    border-color: #CBD5E1;
+}
+
+QComboBox:focus {
+    border-color: #2F80ED;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 24px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    selection-background-color: #F8FAFC;
+    selection-color: #1E2A38;
+}
+
+/* ===================
+   MESSAGE BOX
+   =================== */
+QMessageBox {
+    background-color: #FFFFFF;
+}
+
+QMessageBox QLabel {
+    color: #1E2A38;
+    font-size: 14px;
+}
+
+QMessageBox QPushButton {
+    min-width: 80px;
 }

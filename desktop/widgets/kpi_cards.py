@@ -2,7 +2,18 @@
 KPI Card Widgets
 FOSSEE Scientific Analytics UI
 
-Clean, simple KPI cards with no text truncation.
+Per design.md Section 5.3:
+- Card: White bg, 8px radius, 16px padding
+- Shadow: 0px 2px 6px rgba(0,0,0,0.05)
+- Value: 24px semibold, Deep Indigo
+- Label: 12px regular, Slate Gray
+
+Design tokens:
+- Deep Indigo (text): #1E2A38
+- Slate Gray (secondary): #6B7280
+- Equipment (violet): #8B5CF6
+- Flowrate (teal): #14B8A6
+- Temperature (amber): #F59E0B
 """
 
 from typing import Optional, Dict, Any
@@ -13,14 +24,19 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 
 
-# Colors
-COLOR_EQUIPMENT = "#8B5CF6"  # Violet
-COLOR_FLOWRATE = "#14B8A6"   # Teal
-COLOR_TEMPERATURE = "#F59E0B"  # Amber
+# Data Visualization Colors from design.md Section 2.2
+COLOR_EQUIPMENT = "#8B5CF6"   # Muted Violet
+COLOR_FLOWRATE = "#14B8A6"    # Teal
+COLOR_TEMPERATURE = "#F59E0B" # Amber
 
 
 class KPICard(QFrame):
-    """Single KPI Card - clean and simple."""
+    """
+    Single KPI Card - per design.md Section 5.3.
+    
+    Clean card with icon, value, and label.
+    No truncation, proper sizing.
+    """
     
     def __init__(self, label: str, value: str, unit: str = "", 
                  icon: str = "", accent_color: str = COLOR_EQUIPMENT, parent=None):
@@ -39,65 +55,66 @@ class KPICard(QFrame):
     
     def _setup_ui(self):
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setContentsMargins(16, 16, 16, 16)  # Card padding per design.md
         layout.setSpacing(12)
         
-        # Icon
+        # Icon container - 48x48 per web CSS
         if self._icon:
             icon_label = QLabel(self._icon)
             icon_label.setAlignment(Qt.AlignCenter)
-            icon_label.setFixedSize(44, 44)
+            icon_label.setFixedSize(48, 48)
             icon_label.setStyleSheet(f"""
                 QLabel {{
-                    background-color: {self._accent}22;
+                    background-color: {self._accent}1A;
                     color: {self._accent};
                     border-radius: 10px;
-                    font-size: 20px;
+                    font-size: 22px;
                 }}
             """)
             layout.addWidget(icon_label)
         
-        # Content
+        # Content column
         content = QWidget()
         content_layout = QVBoxLayout(content)
         content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(2)
+        content_layout.setSpacing(4)  # xs spacing
         
         # Value + Unit row
         value_row = QWidget()
         value_layout = QHBoxLayout(value_row)
         value_layout.setContentsMargins(0, 0, 0, 0)
-        value_layout.setSpacing(4)
+        value_layout.setSpacing(2)
         value_layout.setAlignment(Qt.AlignLeft | Qt.AlignBaseline)
         
+        # Value: 24px semibold, Deep Indigo per design.md
         self._value_label = QLabel(self._value)
         self._value_label.setStyleSheet("""
-            font-size: 28px;
-            font-weight: 700;
-            color: #0F172A;
+            font-size: 24px;
+            font-weight: 600;
+            color: #1E2A38;
         """)
         value_layout.addWidget(self._value_label)
         
+        # Unit: Caption (12px), Slate Gray per design.md
         if self._unit:
             self._unit_label = QLabel(self._unit)
             self._unit_label.setStyleSheet("""
-                font-size: 13px;
-                font-weight: 500;
-                color: #64748B;
+                font-size: 12px;
+                font-weight: 400;
+                color: #6B7280;
+                margin-left: 2px;
             """)
             value_layout.addWidget(self._unit_label)
         
         value_layout.addStretch()
         content_layout.addWidget(value_row)
         
-        # Label - NO TRUNCATION
+        # Label: Caption (12px), Slate Gray per design.md
         self._label_label = QLabel(self._label)
         self._label_label.setStyleSheet("""
-            font-size: 11px;
-            font-weight: 600;
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 12px;
+            font-weight: 400;
+            color: #6B7280;
         """)
         self._label_label.setWordWrap(False)
         content_layout.addWidget(self._label_label)
@@ -105,11 +122,12 @@ class KPICard(QFrame):
         layout.addWidget(content, 1)
     
     def _apply_style(self):
+        # Card style per design.md Section 5.3
         self.setStyleSheet("""
             QFrame {
-                background-color: white;
+                background-color: #FFFFFF;
                 border: 1px solid #E5E7EB;
-                border-radius: 12px;
+                border-radius: 8px;
             }
         """)
     
