@@ -276,16 +276,11 @@ class MainWindow(QMainWindow):
                         'fileSize': most_recent.get('file_size', 0),
                     }
                     
-                    # Navigate to summary to show the data
-                    self._navigate_to("summary")
-            else:
-                # No datasets yet, stay on upload screen
-                self._navigate_to("upload")
+            # Stay on the current screen (upload) — no redirect after login
                 
         except Exception as e:
             # Log error but don't crash - user can still upload new data
             print(f"Warning: Failed to refresh user data after login: {e}")
-            self._navigate_to("upload")
 
     def _handle_logout(self):
         """
