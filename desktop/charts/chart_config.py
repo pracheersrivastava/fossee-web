@@ -145,6 +145,8 @@ EQUIPMENT_DISTRIBUTION_CONFIG = {
     'ylabel': 'Count',
     'title': 'Equipment Type Distribution',
     'bar_width': 0.6,
+    'max_bar_width_px': 60,
+    'bar_radius': 4,
     'show_legend': False,
     'show_x_grid': False,
     'show_y_grid': True,
@@ -164,9 +166,12 @@ TEMPERATURE_LINE_CONFIG = {
     'title': 'Temperature vs Equipment',
     'show_legend': True,
     'legend_label': 'Temperature (°C)',
+    'legend_loc': 'upper right',
     'show_x_grid': False,
     'show_y_grid': True,
     'fill': True,
+    'smooth': True,
+    'tension': 0.3,
 }
 
 PRESSURE_DISTRIBUTION_CONFIG = {
@@ -177,6 +182,8 @@ PRESSURE_DISTRIBUTION_CONFIG = {
     'ylabel': 'Equipment Count',
     'title': 'Pressure Distribution',
     'bar_width': 0.6,
+    'max_bar_width_px': 60,
+    'bar_radius': 4,
     'show_legend': False,
     'show_x_grid': False,
     'show_y_grid': True,

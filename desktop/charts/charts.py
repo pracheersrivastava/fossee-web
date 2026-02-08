@@ -23,7 +23,10 @@ matplotlib.use('Qt5Agg')
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+from matplotlib.patches import FancyBboxPatch
+from scipy.interpolate import make_interp_spline
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame,
@@ -102,6 +105,8 @@ class ChartCard(QFrame):
     - Background: White
     - Radius: 8px
     - Padding: 16px
+    - Shadow: 0 1px 3px rgba(0,0,0,0.08)
+    - Min height: 320px
     """
     
     def __init__(self, title: str, parent: Optional[QWidget] = None):
@@ -114,6 +119,15 @@ class ChartCard(QFrame):
     
     def _setup_ui(self):
         """Initialize the chart card UI."""
+        self.setStyleSheet("""
+            QFrame#chartCard {
+                background-color: #FFFFFF;
+                border-radius: 8px;
+                border: 1px solid #E5E7EB;
+                min-height: 320px;
+            }
+        """)
+        
         layout = QVBoxLayout(self)
         layout.setContentsMargins(SPACE_MD, SPACE_MD, SPACE_MD, SPACE_MD)
         layout.setSpacing(SPACE_MD)
@@ -180,7 +194,7 @@ class EquipmentDistributionChart(QWidget):
         self._draw()
     
     def _draw(self):
-        """Draw the bar chart."""
+        """Draw the bar chart with rounded top corners (matching Chart.js borderRadius: 4)."""
         ax = self._canvas.axes
         ax.clear()
         
@@ -191,18 +205,29 @@ class EquipmentDistributionChart(QWidget):
         
         x = np.arange(len(self._labels))
         
-        # Bar chart
-        bars = ax.bar(
-            x,
-            self._data,
-            width=config['bar_width'],
-            color=config['color'],
-            edgecolor=config['edgecolor'],
-        )
+        # Draw bars with rounded top corners
+        bar_width = config['bar_width']
+        radius = config.get('bar_radius', 4)
+        color = config['color']
         
-        # Round bar tops (approximate with zorder)
-        for bar in bars:
-            bar.set_linewidth(0)
+        for i, (xi, val) in enumerate(zip(x, self._data)):
+            if val <= 0:
+                continue
+            # FancyBboxPatch for rounded top corners
+            fancy = FancyBboxPatch(
+                (xi - bar_width / 2, 0),
+                bar_width,
+                val,
+                boxstyle=f"round,pad=0,rounding_size={radius / 72}",
+                facecolor=color,
+                edgecolor='none',
+                zorder=3,
+            )
+            ax.add_patch(fancy)
+        
+        # Set axis limits
+        ax.set_xlim(-0.5, len(self._labels) - 0.5)
+        ax.set_ylim(0, max(self._data) * 1.1 if self._data else 1)
         
         # X-axis
         ax.set_xticks(x)
@@ -211,7 +236,6 @@ class EquipmentDistributionChart(QWidget):
         
         # Y-axis
         ax.set_ylabel(config['ylabel'])
-        ax.set_ylim(bottom=0)
         
         # Grid
         ax.yaxis.grid(config['show_y_grid'], color=UI_COLORS['gridline'], linewidth=1)
@@ -258,7 +282,7 @@ class TemperatureChart(QWidget):
         self._draw()
     
     def _draw(self):
-        """Draw the line chart."""
+        """Draw the line chart with smooth Bézier curve (matching Chart.js tension: 0.3)."""
         ax = self._canvas.axes
         ax.clear()
         
@@ -268,27 +292,47 @@ class TemperatureChart(QWidget):
             return
         
         x = np.arange(len(self._labels))
+        y = np.array(self._data, dtype=float)
         
-        # Line with fill
-        line, = ax.plot(
-            x,
-            self._data,
+        # Smooth curve using cubic spline (matches Chart.js tension: 0.3)
+        if config.get('smooth', False) and len(x) > 2:
+            x_smooth = np.linspace(x.min(), x.max(), 300)
+            try:
+                spl = make_interp_spline(x, y, k=3)
+                y_smooth = spl(x_smooth)
+            except Exception:
+                x_smooth = x
+                y_smooth = y
+        else:
+            x_smooth = x
+            y_smooth = y
+        
+        # Smooth line (no markers on smooth curve)
+        ax.plot(
+            x_smooth,
+            y_smooth,
             color=config['line_color'],
             linewidth=2,
+            zorder=3,
+        )
+        
+        # Markers on actual data points only
+        ax.plot(
+            x, y,
+            linestyle='none',
             marker=config['marker'],
             markersize=config['marker_size'],
             markerfacecolor=config['marker_face_color'],
             markeredgecolor=config['marker_edge_color'],
             markeredgewidth=config['marker_edge_width'],
-            label=config['legend_label'],
-            zorder=3,
+            zorder=4,
         )
         
-        # Fill under line
+        # Fill under smooth curve
         if config['fill']:
             ax.fill_between(
-                x,
-                self._data,
+                x_smooth,
+                y_smooth,
                 alpha=0.13,
                 color=config['line_color'],
                 zorder=2,
@@ -307,9 +351,25 @@ class TemperatureChart(QWidget):
         ax.xaxis.grid(config['show_x_grid'])
         ax.set_axisbelow(True)
         
-        # Legend (top right)
+        # Legend with circle marker (matching Chart.js pointStyle: 'circle')
         if config['show_legend']:
-            ax.legend(loc='upper right', frameon=False)
+            legend_marker = mlines.Line2D(
+                [], [],
+                color=config['line_color'],
+                marker='o',
+                markersize=4,
+                markerfacecolor=config['line_color'],
+                markeredgecolor=config['line_color'],
+                linestyle='-',
+                linewidth=2,
+                label=config['legend_label'],
+            )
+            ax.legend(
+                handles=[legend_marker],
+                loc=config.get('legend_loc', 'upper right'),
+                frameon=False,
+                handlelength=2.5,
+            )
         
         # Remove spines
         for spine in ax.spines.values():
@@ -351,7 +411,7 @@ class PressureDistributionChart(QWidget):
         self._draw()
     
     def _draw(self):
-        """Draw the bar chart."""
+        """Draw the bar chart with rounded top corners (matching Chart.js borderRadius: 4)."""
         ax = self._canvas.axes
         ax.clear()
         
@@ -362,17 +422,28 @@ class PressureDistributionChart(QWidget):
         
         x = np.arange(len(self._labels))
         
-        # Bar chart
-        bars = ax.bar(
-            x,
-            self._data,
-            width=config['bar_width'],
-            color=config['color'],
-            edgecolor=config['edgecolor'],
-        )
+        # Draw bars with rounded top corners
+        bar_width = config['bar_width']
+        radius = config.get('bar_radius', 4)
+        color = config['color']
         
-        for bar in bars:
-            bar.set_linewidth(0)
+        for i, (xi, val) in enumerate(zip(x, self._data)):
+            if val <= 0:
+                continue
+            fancy = FancyBboxPatch(
+                (xi - bar_width / 2, 0),
+                bar_width,
+                val,
+                boxstyle=f"round,pad=0,rounding_size={radius / 72}",
+                facecolor=color,
+                edgecolor='none',
+                zorder=3,
+            )
+            ax.add_patch(fancy)
+        
+        # Set axis limits
+        ax.set_xlim(-0.5, len(self._labels) - 0.5)
+        ax.set_ylim(0, max(self._data) * 1.1 if self._data else 1)
         
         # X-axis
         ax.set_xticks(x)
@@ -381,7 +452,6 @@ class PressureDistributionChart(QWidget):
         
         # Y-axis
         ax.set_ylabel(config['ylabel'])
-        ax.set_ylim(bottom=0)
         
         # Grid
         ax.yaxis.grid(config['show_y_grid'], color=UI_COLORS['gridline'], linewidth=1)
