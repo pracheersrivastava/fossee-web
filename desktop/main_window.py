@@ -16,7 +16,7 @@ from typing import Optional, Dict, Any
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QMessageBox
 )
-from PyQt5.QtCore import Qt, QSettings
+from PyQt5.QtCore import Qt, QSettings, QEvent
 
 from widgets import (
     Header, Sidebar, MainContent, ScreenPlaceholder,
@@ -317,6 +317,26 @@ class MainWindow(QMainWindow):
         # Navigate to upload screen
         self._navigate_to("upload")
 
+    def _refresh_sidebar_history(self):
+        """Refresh the sidebar history widget if authenticated."""
+        if self._current_user:
+            history_widget = self._sidebar.get_history_widget()
+            if history_widget:
+                history_widget.refresh_from_backend()
+
+    def changeEvent(self, event):
+        """
+        Refresh history when window gains focus.
+        This ensures data uploaded on the web app appears in the desktop.
+        """
+        if event.type() == QEvent.ActivationChange and self.isActiveWindow():
+            if self._current_user:
+                self._refresh_sidebar_history()
+                # Also refresh the history screen if it's currently shown
+                if self._current_screen == "history" and self._history_screen:
+                    self._history_screen.load(is_authenticated=True)
+        super().changeEvent(event)
+
     def _navigate_to(self, screen_id: str):
         """Navigate to a specific screen."""
         self._current_screen = screen_id
@@ -324,6 +344,9 @@ class MainWindow(QMainWindow):
         
         title = PAGE_TITLES.get(screen_id, "")
         self._main_content.set_title(title)
+
+        # Refresh sidebar history on every navigation when authenticated
+        self._refresh_sidebar_history()
 
         if screen_id == "upload":
             self._render_upload_screen()

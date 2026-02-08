@@ -282,7 +282,7 @@ class HistoryScreen(QWidget):
         layout.addStretch()
     
     def load(self, is_authenticated: bool):
-        """Load history data from backend."""
+        """Load history data from backend. Always fetches fresh data."""
         if not is_authenticated:
             self._loading_label.setVisible(False)
             self._empty_widget.setVisible(False)
@@ -297,8 +297,11 @@ class HistoryScreen(QWidget):
         self._header.setVisible(False)
         self._list_widget.setVisible(False)
         
+        # Cancel any running fetch worker before starting a new one
         if self._fetch_worker and self._fetch_worker.isRunning():
-            return
+            self._fetch_worker.fetch_success.disconnect()
+            self._fetch_worker.fetch_error.disconnect()
+            self._fetch_worker.wait(500)
         
         self._fetch_worker = HistoryFetchWorker()
         self._fetch_worker.fetch_success.connect(self._on_fetch_success)

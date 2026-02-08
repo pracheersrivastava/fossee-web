@@ -319,12 +319,15 @@ class DatasetHistory(QWidget):
             self.refresh_from_backend()
     
     def refresh_from_backend(self):
-        """Fetch history from backend."""
+        """Fetch fresh history from backend. Always fetches, never skips."""
         if not self._is_authenticated:
             return
         
+        # Cancel any running fetch before starting a new one
         if self._fetch_worker and self._fetch_worker.isRunning():
-            return
+            self._fetch_worker.fetch_success.disconnect()
+            self._fetch_worker.fetch_error.disconnect()
+            self._fetch_worker.wait(500)
         
         self._loading_label.setVisible(True)
         self._empty_label.setVisible(False)
