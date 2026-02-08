@@ -140,7 +140,7 @@ class HistoryCard(QFrame):
     
     def _format_time(self, ts: datetime) -> str:
         if ts.tzinfo:
-            ts = ts.replace(tzinfo=None)
+            ts = ts.astimezone(tz=None).replace(tzinfo=None)
         now = datetime.now()
         diff = now - ts
         mins = diff.total_seconds() / 60
