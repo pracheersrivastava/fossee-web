@@ -13,6 +13,18 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 
 ---
 
+## Live Demo & Downloads
+
+| Platform | Link |
+|----------|------|
+| **Web App** | [https://fossee-web.vercel.app](https://fossee-web.vercel.app) |
+| **Backend API** | [https://pracheer.pythonanywhere.com/api/](https://pracheer.pythonanywhere.com/api/) |
+| **Desktop App** | [Download ChemViz.exe (Windows)](https://github.com/pracheersrivastava/fossee-web/releases/latest) |
+
+> **Quick Start:** Visit the web app, register an account, upload `sample_equipment_data.csv`, and explore the charts, summaries, and PDF export.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology | Purpose |
@@ -49,12 +61,12 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 ```
 ┌──────────────────┐     HTTP/REST     ┌──────────────────┐
 │   React Web App  │ ◄───────────────► │  Django Backend   │
-│   (Vite, :5173)  │                   │  (DRF, :8000)     │
+│   (Vercel)       │                   │  (PythonAnywhere)  │
 └──────────────────┘                   │  SQLite + Pandas  │
                                        └──────────────────┘
 ┌──────────────────┐     HTTP/REST            ▲
 │  PyQt5 Desktop   │ ◄───────────────────────►│
-│   (Standalone)   │
+│   (.exe release) │
 └──────────────────┘
 ```
 
@@ -134,22 +146,17 @@ Upload the included `sample_equipment_data.csv` from the repo root through eithe
 fossee-web/
 ├── README.md                        # This file
 ├── sample_equipment_data.csv        # Sample CSV for testing & demo
-├── design.md                        # UI design system specification
-├── task.md                          # Development task tracker
 ├── package.json                     # React/Vite dependencies
 ├── vite.config.js                   # Vite configuration
 ├── index.html                       # Web entry point
-├── .env                             # Environment variables
 │
 ├── backend/                         # Django REST API Backend
 │   ├── manage.py
 │   ├── requirements.txt
-│   ├── db.sqlite3                   # SQLite database (auto-created)
 │   ├── chemviz_api/                 # Django project config
 │   │   ├── settings.py              # DB, CORS, REST, auth settings
 │   │   ├── urls.py                  # Root URL routing
-│   │   ├── wsgi.py                  # WSGI entry point
-│   │   └── asgi.py
+│   │   └── wsgi.py                  # WSGI entry point
 │   ├── datasets/                    # Dataset management app
 │   │   ├── models.py               # Dataset model (CSV metadata + storage)
 │   │   ├── serializers.py           # DRF serializers
@@ -157,11 +164,10 @@ fossee-web/
 │   │   ├── auth_views.py            # Login, register, logout endpoints
 │   │   ├── authentication.py        # Lenient token auth (anonymous fallback)
 │   │   └── urls.py
-│   ├── analytics/                   # Analytics & charting app
-│   │   ├── services.py              # Pandas analytics engine
-│   │   ├── views.py                 # Summary, KPIs, chart data endpoints
-│   │   └── urls.py
-│   └── media/datasets/              # Uploaded CSV file storage
+│   └── analytics/                   # Analytics & charting app
+│       ├── services.py              # Pandas analytics engine
+│       ├── views.py                 # Summary, KPIs, chart data endpoints
+│       └── urls.py
 │
 ├── src/                             # React Web Frontend
 │   ├── App.jsx                      # Main app with routing
@@ -217,7 +223,7 @@ fossee-web/
 
 ## API Endpoints
 
-Base URL: **http://localhost:8000/api/**
+Base URL: **https://pracheer.pythonanywhere.com/api/** (hosted) or **http://localhost:8000/api/** (local)
 
 ### Datasets
 
@@ -340,3 +346,21 @@ The repository includes `sample_equipment_data.csv` with 25 records across 7 equ
 **FOSSEE Project, IIT Bombay**
 
 Built as part of the [FOSSEE](https://fossee.in/) initiative at the Indian Institute of Technology Bombay.
+
+---
+
+## Deployment
+
+### Web Frontend — Vercel
+- Auto-deploys from `main` branch on push.
+- Live at [https://fossee-web.vercel.app](https://fossee-web.vercel.app).
+
+### Backend — PythonAnywhere
+- Django app hosted at [https://pracheer.pythonanywhere.com](https://pracheer.pythonanywhere.com).
+- CORS configured to accept requests from the Vercel frontend and desktop app.
+- SQLite database with uploaded CSV storage on PythonAnywhere filesystem.
+
+### Desktop — GitHub Releases
+- Built with **PyInstaller** (`--onefile --windowed`).
+- Download the latest `.exe` from the [Releases](https://github.com/pracheersrivastava/fossee-web/releases/latest) page.
+- Connects directly to the hosted PythonAnywhere backend — no local server needed.
