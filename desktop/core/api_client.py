@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Backend configuration
-API_BASE_URL = "http://localhost:8000/api"
+API_BASE_URL = "https://pracheer.pythonanywhere.com/api"
 REQUEST_TIMEOUT = 30  # seconds
 
 

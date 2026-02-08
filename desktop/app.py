@@ -16,11 +16,22 @@ from PyQt5.QtCore import Qt
 from main_window import MainWindow
 
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base_path, relative_path)
+
+
 def load_stylesheet() -> str:
     """Load the QSS stylesheet."""
-    style_path = Path(__file__).parent / "styles" / "theme.qss"
+    style_path = resource_path(os.path.join("styles", "theme.qss"))
     
-    if style_path.exists():
+    if os.path.exists(style_path):
         with open(style_path, "r", encoding="utf-8") as f:
             return f.read()
     

@@ -12,6 +12,7 @@ venv/
 dist/
 build/
 *.egg-info/
+*.spec
 
 # IDE
 .vscode/
@@ -36,6 +37,13 @@ npm-debug.log*
 # Testing
 coverage/
 .pytest_cache/
+
+# Backend
+backend/db.sqlite3
+backend/media/
+
+# Vite temp files
+*.timestamp-*.mjs
 
 # Misc
 *.bak
