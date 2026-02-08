@@ -91,24 +91,26 @@ class PDFReportGenerator:
             spaceAfter=SPACING['sm'],
         ))
         
-        # Body text
-        self.styles.add(ParagraphStyle(
-            name='BodyText',
-            parent=self.styles['Normal'],
-            fontSize=11,
-            leading=16,
-            textColor=hex_to_color(PDF_COLORS['deepIndigo']),
-        ))
+        # Body text (override default BodyText style)
+        self.styles['BodyText'].fontSize = 11
+        self.styles['BodyText'].leading = 16
+        self.styles['BodyText'].textColor = hex_to_color(PDF_COLORS['deepIndigo'])
         
-        # Caption
-        self.styles.add(ParagraphStyle(
-            name='Caption',
-            parent=self.styles['Normal'],
-            fontSize=9,
-            leading=13,
-            textColor=hex_to_color(PDF_COLORS['slateGray']),
-            fontName='Helvetica-Oblique',
-        ))
+        # Caption (override if exists, else add)
+        if 'Caption' in self.styles.byName:
+            self.styles['Caption'].fontSize = 9
+            self.styles['Caption'].leading = 13
+            self.styles['Caption'].textColor = hex_to_color(PDF_COLORS['slateGray'])
+            self.styles['Caption'].fontName = 'Helvetica-Oblique'
+        else:
+            self.styles.add(ParagraphStyle(
+                name='Caption',
+                parent=self.styles['Normal'],
+                fontSize=9,
+                leading=13,
+                textColor=hex_to_color(PDF_COLORS['slateGray']),
+                fontName='Helvetica-Oblique',
+            ))
         
         # KPI Value
         self.styles.add(ParagraphStyle(
@@ -245,9 +247,9 @@ class PDFReportGenerator:
         
         metadata = [
             ["Generated:", datetime.now().strftime("%Y-%m-%d %H:%M")],
-            ["Dataset:", summary_data.get('file_name', 'Unknown')],
-            ["Records:", str(summary_data.get('total_rows', 0))],
-            ["Status:", "Valid" if summary_data.get('validation', {}).get('overall_status') == 'passed' else "Issues Found"],
+            ["Dataset:", summary_data.get('dataset_name', 'Unknown')],
+            ["Records:", str(summary_data.get('total_equipment', 0))],
+            ["Status:", "Valid"],
         ]
         
         # Create 2-column layout
@@ -283,15 +285,17 @@ class PDFReportGenerator:
         
         elements.append(Paragraph("Summary", self.styles['SectionHeader']))
         
-        # Extract stats
-        stats = summary_data.get('column_stats', {})
+        # Build KPI data from backend /api/summary/<id>/ response
+        total_equipment = summary_data.get('total_equipment', 0)
+        avg_flowrate = summary_data.get('average_flowrate') or 0
+        avg_temperature = summary_data.get('average_temperature') or 0
+        dominant_type = summary_data.get('dominant_equipment_type', 'N/A')
         
-        # Build KPI data
         kpis = [
-            ("Total Equipment", str(summary_data.get('total_rows', 0)), None),
-            ("Avg Flowrate", f"{stats.get('flowrate', {}).get('mean', 0):.1f}", "m³/hr"),
-            ("Avg Temperature", f"{stats.get('temperature', {}).get('mean', 0):.1f}", "°C"),
-            ("Equipment Types", str(stats.get('equipment_id', {}).get('unique', 0)), None),
+            ("Total Equipment", str(total_equipment), None),
+            ("Avg Flowrate", f"{avg_flowrate:.1f}", "m³/hr"),
+            ("Avg Temperature", f"{avg_temperature:.1f}", "°C"),
+            ("Dominant Type", str(dominant_type), None),
         ]
         
         # Create KPI cards as a table
@@ -329,18 +333,20 @@ class PDFReportGenerator:
         return elements
 
     def _build_charts_section(self, analysis_data: Dict[str, Any]) -> List:
-        """Build the charts section."""
+        """Build the charts section using same data keys as desktop/web charts."""
         elements = []
         
         elements.append(Paragraph("Data Visualization", self.styles['SectionHeader']))
         
-        # Equipment Distribution Chart
-        type_counts = analysis_data.get('type_counts', {})
-        if type_counts:
+        # Equipment Distribution Chart (Muted Violet #8B5CF6)
+        equip_dist = analysis_data.get('equipment_type_distribution', {})
+        equip_labels = equip_dist.get('labels', [])
+        equip_data = equip_dist.get('data', [])
+        if equip_labels and equip_data:
             elements.append(Paragraph("Equipment Distribution by Type", self.styles['SubsectionHeader']))
             chart = self._create_bar_chart(
-                list(type_counts.keys()),
-                list(type_counts.values()),
+                equip_labels,
+                equip_data,
                 hex_to_color(PDF_COLORS['equipment']),
                 width=450,
                 height=180
@@ -349,44 +355,39 @@ class PDFReportGenerator:
             elements.append(Spacer(1, SPACING['md']))
         
         # Temperature and Pressure side by side
-        temp_profile = analysis_data.get('temperature_profile', [])
-        pressure_dist = analysis_data.get('pressure_distribution', [])
+        temp_data = analysis_data.get('temperature_by_equipment', {})
+        temp_labels = temp_data.get('labels', [])
+        temp_values = temp_data.get('data', [])
         
-        if temp_profile or pressure_dist:
-            # Create a table with two charts
+        pressure_data = analysis_data.get('pressure_distribution', {})
+        pressure_labels = pressure_data.get('labels', [])
+        pressure_values = pressure_data.get('data', [])
+        
+        if temp_values or pressure_values:
             chart_row = []
             
-            if temp_profile:
-                temp_values = [p.get('value', p.get('temperature', 0)) for p in temp_profile[:20]]
+            if temp_values:
                 temp_chart = self._create_line_chart(
-                    temp_values,
+                    temp_values[:20],
                     hex_to_color(PDF_COLORS['temperature']),
-                    "Temperature Profile",
+                    "Temperature vs Equipment",
                     width=210,
                     height=140
                 )
-                chart_row.append([
-                    Paragraph("Temperature Profile", self.styles['Caption']),
-                    temp_chart
-                ])
+                chart_row.append(temp_chart)
             
-            if pressure_dist:
-                pressure_values = [p.get('count', 0) for p in pressure_dist[:10]]
-                pressure_labels = [str(p.get('range', '')) for p in pressure_dist[:10]]
+            if pressure_values:
                 pressure_chart = self._create_bar_chart(
-                    pressure_labels,
-                    pressure_values,
+                    pressure_labels[:10],
+                    pressure_values[:10],
                     hex_to_color(PDF_COLORS['pressure']),
                     width=210,
                     height=140
                 )
-                chart_row.append([
-                    Paragraph("Pressure Distribution", self.styles['Caption']),
-                    pressure_chart
-                ])
+                chart_row.append(pressure_chart)
             
             if chart_row:
-                charts_table = Table([[cell[1] for cell in chart_row]], colWidths=[215, 215])
+                charts_table = Table([chart_row], colWidths=[215, 215])
                 elements.append(charts_table)
                 elements.append(Spacer(1, SPACING['lg']))
         
