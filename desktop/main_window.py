@@ -399,9 +399,26 @@ class MainWindow(QMainWindow):
     def _render_history_screen(self):
         """Render the dataset history screen."""
         self._history_screen = HistoryScreen()
-        self._history_screen.dataset_selected.connect(self._on_history_dataset_selected)
+        self._history_screen.dataset_selected.connect(self._on_history_screen_analyze)
         self._history_screen.load(is_authenticated=self.is_authenticated())
         self._main_content.set_content(self._history_screen)
+
+    def _on_history_screen_analyze(self, dataset_id: str):
+        """Handle Analyze click from the full History screen → open analysis."""
+        self._current_dataset_id = dataset_id
+        try:
+            dataset_info = api_client.get_dataset(dataset_id)
+            self._uploaded_data = {
+                'dataset_id': dataset_id,
+                'fileName': dataset_info.get('original_filename', dataset_info.get('name', 'Unknown')),
+                'rowCount': dataset_info.get('row_count', 0),
+                'columnCount': dataset_info.get('column_count', 0),
+                'fileSize': dataset_info.get('file_size', 0),
+            }
+        except Exception as e:
+            print(f"Warning: Could not fetch dataset details: {e}")
+            self._uploaded_data = {'dataset_id': dataset_id}
+        self._navigate_to("analysis")
 
     def _on_upload_complete(self, data: Dict[str, Any]):
         """

@@ -229,9 +229,12 @@ class EquipmentDistributionChart(QWidget):
         ax.set_xlim(-0.5, len(self._labels) - 0.5)
         ax.set_ylim(0, max(self._data) * 1.1 if self._data else 1)
         
-        # X-axis
+        # X-axis — truncate long labels and rotate to avoid smudging
         ax.set_xticks(x)
-        ax.set_xticklabels(self._labels)
+        short = [l[:10] + '…' if len(l) > 10 else l for l in self._labels]
+        ax.set_xticklabels(short, rotation=45 if len(short) > 4 else 0,
+                           ha='right' if len(short) > 4 else 'center',
+                           fontsize=10)
         ax.set_xlabel(config['xlabel'])
         
         # Y-axis
@@ -338,9 +341,12 @@ class TemperatureChart(QWidget):
                 zorder=2,
             )
         
-        # X-axis
+        # X-axis — truncate long labels and rotate to avoid smudging
         ax.set_xticks(x)
-        ax.set_xticklabels(self._labels)
+        short = [l[:10] + '…' if len(l) > 10 else l for l in self._labels]
+        ax.set_xticklabels(short, rotation=45 if len(short) > 4 else 0,
+                           ha='right' if len(short) > 4 else 'center',
+                           fontsize=10)
         ax.set_xlabel(config['xlabel'])
         
         # Y-axis
@@ -445,9 +451,12 @@ class PressureDistributionChart(QWidget):
         ax.set_xlim(-0.5, len(self._labels) - 0.5)
         ax.set_ylim(0, max(self._data) * 1.1 if self._data else 1)
         
-        # X-axis
+        # X-axis — truncate long labels and rotate to avoid smudging
         ax.set_xticks(x)
-        ax.set_xticklabels(self._labels)
+        short = [l[:10] + '…' if len(l) > 10 else l for l in self._labels]
+        ax.set_xticklabels(short, rotation=45 if len(short) > 4 else 0,
+                           ha='right' if len(short) > 4 else 'center',
+                           fontsize=10)
         ax.set_xlabel(config['xlabel'])
         
         # Y-axis
