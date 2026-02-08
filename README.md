@@ -33,14 +33,14 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 
 | # | Feature | Web | Desktop | Details |
 |---|---------|-----|---------|---------|
-| 1 | **CSV Upload** | ✅ | ✅ | Drag-and-drop + file dialog upload to Django backend |
-| 2 | **Data Summary API** | ✅ | ✅ | Total count, averages (flowrate, temperature, pressure), equipment type distribution |
-| 3 | **Visualization** | ✅ Chart.js | ✅ Matplotlib | Equipment Distribution (Bar), Temperature Profile (Line), Pressure Analysis (Bar) |
-| 4 | **History Management** | ✅ | ✅ | Stores last 5 uploaded datasets with summary; sidebar + full history screen |
-| 5 | **PDF Report** | ✅ jsPDF | ✅ ReportLab | A4 formatted report with KPIs, charts, data table, FOSSEE branding |
-| 6 | **Authentication** | ✅ | ✅ | Token-based login/register/logout with dataset ownership |
-| 7 | **Data Tables** | ✅ | ✅ | Sortable equipment table with status badges, zebra striping |
-| 8 | **Sample CSV** | ✅ | ✅ | `sample_equipment_data.csv` included in repo root (25 records, 7 equipment types) |
+| 1 | **CSV Upload** | Yes | Yes | Drag-and-drop + file dialog upload to Django backend |
+| 2 | **Data Summary API** | Yes | Yes | Total count, averages (flowrate, temperature, pressure), equipment type distribution |
+| 3 | **Visualization** | Yes (Chart.js) | Yes (Matplotlib) | Equipment Distribution (Bar), Temperature Profile (Line), Pressure Analysis (Bar) |
+| 4 | **History Management** | Yes | Yes | Stores last 5 uploaded datasets with summary; sidebar + full history screen |
+| 5 | **PDF Report** | Yes (jsPDF) | Yes (ReportLab) | A4 formatted report with KPIs, charts, data table, FOSSEE branding |
+| 6 | **Authentication** | Yes | Yes | Token-based login/register/logout with dataset ownership |
+| 7 | **Data Tables** | Yes | Yes | Sortable equipment table with status badges, zebra striping |
+| 8 | **Sample CSV** | Yes | Yes | `sample_equipment_data.csv` included in repo root (25 records, 7 equipment types) |
 
 ---
 
