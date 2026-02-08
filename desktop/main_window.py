@@ -22,6 +22,7 @@ from widgets import (
     Header, Sidebar, MainContent, ScreenPlaceholder,
     CSVUpload, SummaryScreen, AuthDialog
 )
+from widgets.history_screen import HistoryScreen
 from charts import AnalysisCharts
 from core.tokens import LAYOUT_MIN_CONTENT_WIDTH, LAYOUT_HEADER_HEIGHT
 from core.api_client import api_client
@@ -34,9 +35,7 @@ PAGE_TITLES = {
     "history": "Analysis History",
 }
 
-SCREEN_PLACEHOLDERS = {
-    "history": "Analysis history table will appear here.",
-}
+SCREEN_PLACEHOLDERS = {}
 
 
 class MainWindow(QMainWindow):
@@ -53,6 +52,7 @@ class MainWindow(QMainWindow):
         self._csv_upload: Optional[CSVUpload] = None
         self._summary_screen: Optional[SummaryScreen] = None
         self._analysis_charts: Optional[AnalysisCharts] = None
+        self._history_screen: Optional[HistoryScreen] = None
         self._setup_window()
         self._setup_ui()
         self._connect_signals()
@@ -268,8 +268,12 @@ class MainWindow(QMainWindow):
                     self._current_dataset_id = str(dataset_id)
                     self._uploaded_data = {
                         'dataset_id': self._current_dataset_id,
-                        'fileName': most_recent.get('filename', most_recent.get('name', 'Unknown')),
+                        'fileName': (most_recent.get('filename') 
+                                    or most_recent.get('original_filename') 
+                                    or most_recent.get('name') or 'Unknown'),
                         'rowCount': most_recent.get('row_count', 0),
+                        'columnCount': most_recent.get('column_count', 0),
+                        'fileSize': most_recent.get('file_size', 0),
                     }
                     
                     # Navigate to summary to show the data
@@ -327,6 +331,8 @@ class MainWindow(QMainWindow):
             self._render_summary_screen()
         elif screen_id == "analysis":
             self._render_analysis_screen()
+        elif screen_id == "history":
+            self._render_history_screen()
         else:
             placeholder_text = SCREEN_PLACEHOLDERS.get(screen_id, "")
             placeholder = ScreenPlaceholder(placeholder_text)
@@ -390,6 +396,13 @@ class MainWindow(QMainWindow):
         
         self._main_content.set_content(self._analysis_charts)
 
+    def _render_history_screen(self):
+        """Render the dataset history screen."""
+        self._history_screen = HistoryScreen()
+        self._history_screen.dataset_selected.connect(self._on_history_dataset_selected)
+        self._history_screen.load(is_authenticated=self.is_authenticated())
+        self._main_content.set_content(self._history_screen)
+
     def _on_upload_complete(self, data: Dict[str, Any]):
         """
         Handle successful CSV upload from backend.
@@ -410,13 +423,16 @@ class MainWindow(QMainWindow):
             return
         
         # Store upload metadata for display
+        # CSVUpload emits camelCase keys (fileName, rowCount, etc.)
+        # Also handle snake_case from raw backend response
         self._uploaded_data = {
             'dataset_id': self._current_dataset_id,
-            'fileName': data.get('name', data.get('filename', 'Unknown')),
-            'rowCount': data.get('row_count', 0),
-            'columnCount': data.get('column_count', 0),
-            'fileSize': data.get('file_size', 0),
-            'issues': data.get('validation', {}).get('issues', []),
+            'fileName': (data.get('fileName') or data.get('name') 
+                        or data.get('filename') or data.get('original_filename') or 'Unknown'),
+            'rowCount': data.get('rowCount') or data.get('row_count') or 0,
+            'columnCount': data.get('columnCount') or data.get('column_count') or 0,
+            'fileSize': data.get('fileSize') or data.get('file_size') or 0,
+            'issues': data.get('issues', []),
         }
         
         # If not authenticated, mark this dataset for claiming after login

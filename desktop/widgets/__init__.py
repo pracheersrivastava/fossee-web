@@ -19,6 +19,7 @@ from widgets.dataset_history import (
     DatasetHistory,
     HistoryItem,
 )
+from widgets.history_screen import HistoryScreen
 from widgets.auth_dialog import (
     AuthDialog,
     UserMenuWidget,
@@ -45,6 +46,7 @@ __all__ = [
     "EquipmentDataTable",
     "DatasetHistory",
     "HistoryItem",
+    "HistoryScreen",
     "AuthDialog",
     "UserMenuWidget",
     "show_login_dialog",
