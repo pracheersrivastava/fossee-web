@@ -224,6 +224,7 @@ function App() {
             datasets={recentDatasets}
             onReanalyze={handleReanalyze}
             onClearHistory={handleClearHistory}
+            isAuthenticated={isAuthenticated}
           />
         );
       default:
@@ -256,7 +257,19 @@ function App() {
 /**
  * History Screen - Full-page dataset history view
  */
-function HistoryScreen({ datasets, onReanalyze, onClearHistory }) {
+function HistoryScreen({ datasets, onReanalyze, onClearHistory, isAuthenticated }) {
+  if (!isAuthenticated) {
+    return (
+      <div className="history-screen history-screen--empty">
+        <div className="history-screen__empty-icon">🔒</div>
+        <h3 className="history-screen__empty-title">Login to view your datasets</h3>
+        <p className="history-screen__empty-text">
+          Sign in to access your upload history and past analyses.
+        </p>
+      </div>
+    );
+  }
+
   if (!datasets || datasets.length === 0) {
     return (
       <div className="history-screen history-screen--empty">
