@@ -172,6 +172,9 @@ class PDFReportGenerator:
             )
             return False
         
+        # Fetch dataset detail for equipment data table (data_preview)
+        dataset_detail = api_client.get_dataset(dataset_id)
+        
         # Ask user for save location
         default_name = f"CHEMVIZ_Report_{dataset_id}_{datetime.now().strftime('%Y%m%d')}.pdf"
         file_path, _ = QFileDialog.getSaveFileName(
@@ -185,7 +188,7 @@ class PDFReportGenerator:
             return False
         
         try:
-            self._build_pdf(file_path, summary_data, analysis_data)
+            self._build_pdf(file_path, summary_data, analysis_data, dataset_detail)
             QMessageBox.information(
                 parent,
                 "Report Generated",
@@ -200,7 +203,7 @@ class PDFReportGenerator:
             )
             return False
 
-    def _build_pdf(self, file_path: str, summary_data: Dict[str, Any], analysis_data: Dict[str, Any]):
+    def _build_pdf(self, file_path: str, summary_data: Dict[str, Any], analysis_data: Dict[str, Any], dataset_detail: Optional[Dict[str, Any]] = None):
         """Build the PDF document."""
         doc = SimpleDocTemplate(
             file_path,
@@ -228,7 +231,7 @@ class PDFReportGenerator:
         
         # Data table
         story.append(PageBreak())
-        story.extend(self._build_data_table(analysis_data))
+        story.extend(self._build_data_table(dataset_detail))
         
         # Build the document
         doc.build(story, onFirstPage=self._add_footer, onLaterPages=self._add_footer)
@@ -445,14 +448,17 @@ class PDFReportGenerator:
         drawing.add(chart)
         return drawing
 
-    def _build_data_table(self, analysis_data: Dict[str, Any]) -> List:
-        """Build the data table section."""
+    def _build_data_table(self, dataset_detail: Optional[Dict[str, Any]] = None) -> List:
+        """Build the data table section from dataset detail's data_preview."""
         elements = []
         
         elements.append(Paragraph("Equipment Data", self.styles['SectionHeader']))
         
-        # Get table data
-        table_data = analysis_data.get('table_data', [])
+        # Get table data from dataset detail's data_preview
+        table_data = []
+        if dataset_detail and isinstance(dataset_detail, dict):
+            table_data = dataset_detail.get('data_preview', [])
+        
         if not table_data:
             elements.append(Paragraph("No data available.", self.styles['BodyText']))
             return elements
@@ -461,23 +467,20 @@ class PDFReportGenerator:
         display_data = table_data[:20]
         truncated = len(table_data) > 20
         
-        # Headers
-        headers = ["ID", "Type", "Temp (°C)", "Pressure (bar)", "Flowrate (m³/hr)", "Status"]
+        # Use actual column names from the data
+        headers = list(display_data[0].keys()) if display_data else []
         
         # Build table data
         pdf_table_data = [headers]
         for row in display_data:
             pdf_table_data.append([
-                str(row.get('id', row.get('equipment_id', ''))),
-                str(row.get('type', row.get('equipment_type', ''))),
-                f"{row.get('temperature', 0):.1f}",
-                f"{row.get('pressure', 0):.1f}",
-                f"{row.get('flowrate', 0):.1f}",
-                str(row.get('status', 'Active')),
+                str(row.get(h, '')) for h in headers
             ])
         
-        # Create table
-        table = Table(pdf_table_data, colWidths=[55, 80, 70, 80, 90, 70])
+        # Calculate even column widths based on number of columns
+        num_cols = len(headers) if headers else 1
+        col_width = 450 / num_cols
+        table = Table(pdf_table_data, colWidths=[col_width] * num_cols)
         table.setStyle(TableStyle([
             # Header row
             ('BACKGROUND', (0, 0), (-1, 0), hex_to_color(PDF_COLORS['tableHeader'])),
@@ -489,8 +492,6 @@ class PDFReportGenerator:
             # Data rows
             ('FONTNAME', (0, 1), (-1, -1), FONT_FAMILY_PRIMARY),
             ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('ALIGN', (2, 1), (4, -1), 'RIGHT'),  # Numbers right-aligned
-            ('ALIGN', (5, 1), (5, -1), 'CENTER'),  # Status centered
             
             # Zebra striping
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), 
