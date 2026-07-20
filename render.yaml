@@ -1,0 +1,30 @@
+databases:
+  - name: fossee-db
+    plan: free
+    databaseName: fossee
+    user: fossee
+
+services:
+  - type: web
+    name: fossee-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn chemviz_api.wsgi:application --bind 0.0.0.0:$PORT"
+    healthCheckPath: /api/
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fossee-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,fossee-api.onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://fossee-web.vercel.app,http://localhost:5173,http://127.0.0.1:5173"
+      - key: PYTHON_VERSION
+        value: "3.11.9"

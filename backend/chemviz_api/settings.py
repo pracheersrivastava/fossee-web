@@ -7,16 +7,22 @@ Chemical Equipment Parameter Visualizer Backend
 from pathlib import Path
 import os
 
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-chemviz-dev-key-change-in-production-12345'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-chemviz-dev-key-change-in-production-12345',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+_allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
+ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(',') if host.strip()]
 
 
 # Application definition
@@ -42,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # Must be before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -72,13 +79,14 @@ WSGI_APPLICATION = 'chemviz_api.wsgi.application'
 
 
 # Database
-# Using SQLite for development
+# SQLite locally; PostgreSQL when DATABASE_URL is set (Render production)
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
+        conn_max_age=600,
+        ssl_require=not DEBUG,
+    )
 }
 
 
@@ -113,7 +121,16 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 
 # Default primary key field type
@@ -149,11 +166,16 @@ REST_FRAMEWORK = {
 # CORS Configuration
 # ============================================
 
+_default_cors_origins = (
+    'http://localhost:3000,'
+    'http://127.0.0.1:3000,'
+    'http://localhost:5173,'
+    'http://127.0.0.1:5173,'
+    'https://fossee-web.vercel.app'
+)
+_cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', _default_cors_origins)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React dev server
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",  # Vite dev server
-    "http://127.0.0.1:5173",
+    origin.strip() for origin in _cors_origins.split(',') if origin.strip()
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -198,3 +220,13 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 # Maximum number of datasets to keep in history
 MAX_DATASETS_HISTORY = 5
+
+
+# ============================================
+# Production security
+# ============================================
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

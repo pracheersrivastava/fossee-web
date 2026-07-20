@@ -7,6 +7,7 @@ Format: Authorization: Token <token>
 """
 
 import logging
+import os
 import requests
 from typing import Optional, Dict, Any, List
 from pathlib import Path
@@ -16,7 +17,10 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Backend configuration
-API_BASE_URL = "https://pracheer.pythonanywhere.com/api"
+API_BASE_URL = os.environ.get(
+    "CHEMVIZ_API_BASE_URL",
+    "https://fossee-api.onrender.com/api",
+)
 REQUEST_TIMEOUT = 30  # seconds
 
 

@@ -18,7 +18,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 | Platform | Link |
 |----------|------|
 | **Web App** | [https://fossee-web.vercel.app](https://fossee-web.vercel.app) |
-| **Backend API** | [https://pracheer.pythonanywhere.com/api/](https://pracheer.pythonanywhere.com/api/) |
+| **Backend API** | [https://fossee-api.onrender.com/api/](https://fossee-api.onrender.com/api/) |
 | **Desktop App** | [Download ChemViz.exe (Windows)](https://github.com/pracheersrivastava/fossee-web/releases/latest) |
 
 > **Quick Start:** Visit the web app, register an account, upload `sample_equipment_data.csv`, and explore the charts, summaries, and PDF export.
@@ -61,7 +61,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 ```
 ┌──────────────────┐     HTTP/REST     ┌──────────────────┐
 │   React Web App  │ ◄───────────────► │  Django Backend   │
-│   (Vercel)       │                   │  (PythonAnywhere)  │
+│   (Vercel)       │                   │  (Render)         │
 └──────────────────┘                   │  SQLite + Pandas  │
                                        └──────────────────┘
 ┌──────────────────┐     HTTP/REST            ▲
@@ -223,7 +223,7 @@ fossee-web/
 
 ## API Endpoints
 
-Base URL: **https://pracheer.pythonanywhere.com/api/** (hosted) or **http://localhost:8000/api/** (local)
+Base URL: **https://fossee-api.onrender.com/api/** (hosted) or **http://localhost:8000/api/** (local)
 
 ### Datasets
 
@@ -355,12 +355,13 @@ Built as part of the [FOSSEE](https://fossee.in/) initiative at the Indian Insti
 - Auto-deploys from `main` branch on push.
 - Live at [https://fossee-web.vercel.app](https://fossee-web.vercel.app).
 
-### Backend — PythonAnywhere
-- Django app hosted at [https://pracheer.pythonanywhere.com](https://pracheer.pythonanywhere.com).
-- CORS configured to accept requests from the Vercel frontend and desktop app.
-- SQLite database with uploaded CSV storage on PythonAnywhere filesystem.
+### Backend — Render
+- Django API hosted at [https://fossee-api.onrender.com](https://fossee-api.onrender.com).
+- PostgreSQL database + Gunicorn on Render free tier.
+- CORS configured for the Vercel frontend and desktop app.
+- Deploy via `render.yaml` blueprint from the GitHub repo.
 
 ### Desktop — GitHub Releases
 - Built with **PyInstaller** (`--onefile --windowed`).
 - Download the latest `.exe` from the [Releases](https://github.com/pracheersrivastava/fossee-web/releases/latest) page.
-- Connects directly to the hosted PythonAnywhere backend — no local server needed.
+- Connects to the hosted Render backend — no local server needed.
