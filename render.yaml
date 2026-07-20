@@ -10,7 +10,7 @@ services:
     runtime: python
     plan: free
     rootDir: backend
-    buildCommand: "./build.sh"
+    buildCommand: "bash ./build.sh"
     startCommand: "gunicorn chemviz_api.wsgi:application --bind 0.0.0.0:$PORT"
     healthCheckPath: /api/
     envVars:

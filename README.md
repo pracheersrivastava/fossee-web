@@ -9,7 +9,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 ![React](https://img.shields.io/badge/React-18.x-61dafb)
 ![PyQt5](https://img.shields.io/badge/PyQt5-5.15+-41cd52)
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB)
-![SQLite](https://img.shields.io/badge/SQLite-Database-003B57)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Production-4169E1)
 
 ---
 
@@ -18,7 +18,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 | Platform | Link |
 |----------|------|
 | **Web App** | [https://fossee-web.vercel.app](https://fossee-web.vercel.app) |
-| **Backend API** | [https://fossee-api.vercel.app/api/](https://fossee-api.vercel.app/api/) |
+| **Backend API** | [https://fossee-api.onrender.com/api/](https://fossee-api.onrender.com/api/) |
 | **Desktop App** | [Download ChemViz.exe (Windows)](https://github.com/pracheersrivastava/fossee-web/releases/latest) |
 
 > **Quick Start:** Visit the web app, register an account, upload `sample_equipment_data.csv`, and explore the charts, summaries, and PDF export.
@@ -33,7 +33,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 | Frontend (Desktop) | PyQt5 + Matplotlib | Same visualization in desktop |
 | Backend | Python Django + Django REST Framework | Common backend API |
 | Data Handling | Pandas | Reading CSV & analytics |
-| Database | SQLite | Store last 5 uploaded datasets |
+| Database | PostgreSQL (Render) / SQLite (local) | Store datasets, users, and upload history |
 | PDF Generation | jsPDF (Web) + ReportLab (Desktop) | Export analysis reports |
 | Authentication | Token-based (DRF Tokens) | Login, Register, Logout |
 | Version Control | Git & GitHub | Collaboration & submission |
@@ -61,8 +61,9 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 ```
 ┌──────────────────┐     HTTP/REST     ┌──────────────────┐
 │   React Web App  │ ◄───────────────► │  Django Backend   │
-│   (Vercel)       │                   │  (Vercel)         │
-└──────────────────┘                   │  SQLite + Pandas  │
+│   (Vercel)       │                   │  (Render)         │
+└──────────────────┘                   │  PostgreSQL +     │
+                                       │  Pandas           │
                                        └──────────────────┘
 ┌──────────────────┐     HTTP/REST            ▲
 │  PyQt5 Desktop   │ ◄───────────────────────►│
@@ -223,7 +224,7 @@ fossee-web/
 
 ## API Endpoints
 
-Base URL: **https://fossee-api.vercel.app/api/** (hosted) or **http://localhost:8000/api/** (local)
+Base URL: **https://fossee-api.onrender.com/api/** (hosted) or **http://localhost:8000/api/** (local)
 
 ### Datasets
 
@@ -287,6 +288,10 @@ The repository includes `sample_equipment_data.csv` with 25 records across 7 equ
 | numpy | ≥ 1.24 | Numerical computing |
 | openpyxl | ≥ 3.1 | Excel file support |
 | python-dotenv | ≥ 1.0 | Environment variables |
+| gunicorn | ≥ 21.2 | Production WSGI server |
+| whitenoise | ≥ 6.6 | Static file serving |
+| dj-database-url | ≥ 2.1 | Database URL parsing |
+| psycopg2-binary | ≥ 2.9 | PostgreSQL driver (Render) |
 
 ### Web Frontend
 
@@ -352,16 +357,34 @@ Built as part of the [FOSSEE](https://fossee.in/) initiative at the Indian Insti
 ## Deployment
 
 ### Web Frontend — Vercel
-- Auto-deploys from `main` branch on push.
+- Auto-deploys from `main` on push.
 - Live at [https://fossee-web.vercel.app](https://fossee-web.vercel.app).
+- Set `VITE_API_BASE_URL=https://fossee-api.onrender.com/api` in Vercel project env.
 
-### Backend — Vercel
-- Django API hosted at [https://fossee-api.vercel.app](https://fossee-api.vercel.app).
-- Serverless Python deployment with SQLite on `/tmp` for demo workloads.
-- CORS configured for the Vercel frontend and desktop app.
-- `render.yaml` is included as an alternative for persistent PostgreSQL hosting on Render.
+### Backend — Render (PostgreSQL)
+- Django API at [https://fossee-api.onrender.com](https://fossee-api.onrender.com).
+- **PostgreSQL** database (`fossee-db`) for persistent users, datasets, and upload history.
+- Gunicorn + WhiteNoise; CORS allows the Vercel frontend and desktop app.
+- One-click deploy from `render.yaml`:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/pracheersrivastava/fossee-web)
+
+Or connect the repo in [Render Dashboard](https://dashboard.render.com/) → **New** → **Blueprint** → select `pracheersrivastava/fossee-web`.
+
+**Render services created:**
+| Service | Type | Purpose |
+|---------|------|---------|
+| `fossee-api` | Web (Python) | Django REST API |
+| `fossee-db` | PostgreSQL | Production database |
+
+**Note:** Free-tier Render services spin down after ~15 min idle; first request after sleep may take 30–60s.
+
+### Backend — Vercel (fallback)
+- Serverless deploy at [https://fossee-api.vercel.app](https://fossee-api.vercel.app) (ephemeral SQLite in `/tmp`).
+- Use Render for production; Vercel config remains in `backend/vercel.json` for quick demos.
 
 ### Desktop — GitHub Releases
 - Built with **PyInstaller** (`--onefile --windowed`).
-- Download the latest `.exe` from the [Releases](https://github.com/pracheersrivastava/fossee-web/releases/latest) page.
-- Connects to the hosted Render backend — no local server needed.
+- Download the latest `.exe` from [Releases](https://github.com/pracheersrivastava/fossee-web/releases/latest).
+- Points at `https://fossee-api.onrender.com/api` by default.
+- Override with env var `CHEMVIZ_API_BASE_URL` if needed.
