@@ -52,3 +52,5 @@ backend/media/
 # Internal documentation (not for repo)
 task.md
 design.md
+.vercel
+.env*

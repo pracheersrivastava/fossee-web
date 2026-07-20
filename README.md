@@ -18,7 +18,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 | Platform | Link |
 |----------|------|
 | **Web App** | [https://fossee-web.vercel.app](https://fossee-web.vercel.app) |
-| **Backend API** | [https://fossee-api.onrender.com/api/](https://fossee-api.onrender.com/api/) |
+| **Backend API** | [https://fossee-api.vercel.app/api/](https://fossee-api.vercel.app/api/) |
 | **Desktop App** | [Download ChemViz.exe (Windows)](https://github.com/pracheersrivastava/fossee-web/releases/latest) |
 
 > **Quick Start:** Visit the web app, register an account, upload `sample_equipment_data.csv`, and explore the charts, summaries, and PDF export.
@@ -61,7 +61,7 @@ A hybrid application that allows users to upload a CSV file containing chemical 
 ```
 ┌──────────────────┐     HTTP/REST     ┌──────────────────┐
 │   React Web App  │ ◄───────────────► │  Django Backend   │
-│   (Vercel)       │                   │  (Render)         │
+│   (Vercel)       │                   │  (Vercel)         │
 └──────────────────┘                   │  SQLite + Pandas  │
                                        └──────────────────┘
 ┌──────────────────┐     HTTP/REST            ▲
@@ -223,7 +223,7 @@ fossee-web/
 
 ## API Endpoints
 
-Base URL: **https://fossee-api.onrender.com/api/** (hosted) or **http://localhost:8000/api/** (local)
+Base URL: **https://fossee-api.vercel.app/api/** (hosted) or **http://localhost:8000/api/** (local)
 
 ### Datasets
 
@@ -355,11 +355,11 @@ Built as part of the [FOSSEE](https://fossee.in/) initiative at the Indian Insti
 - Auto-deploys from `main` branch on push.
 - Live at [https://fossee-web.vercel.app](https://fossee-web.vercel.app).
 
-### Backend — Render
-- Django API hosted at [https://fossee-api.onrender.com](https://fossee-api.onrender.com).
-- PostgreSQL database + Gunicorn on Render free tier.
+### Backend — Vercel
+- Django API hosted at [https://fossee-api.vercel.app](https://fossee-api.vercel.app).
+- Serverless Python deployment with SQLite on `/tmp` for demo workloads.
 - CORS configured for the Vercel frontend and desktop app.
-- Deploy via `render.yaml` blueprint from the GitHub repo.
+- `render.yaml` is included as an alternative for persistent PostgreSQL hosting on Render.
 
 ### Desktop — GitHub Releases
 - Built with **PyInstaller** (`--onefile --windowed`).

@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 # Backend configuration
 API_BASE_URL = os.environ.get(
     "CHEMVIZ_API_BASE_URL",
-    "https://fossee-api.onrender.com/api",
+    "https://fossee-api.vercel.app/api",
 )
 REQUEST_TIMEOUT = 30  # seconds
 

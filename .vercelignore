@@ -1,0 +1,7 @@
+backend/
+desktop/
+.git/
+*.exe
+build/
+dist/
+node_modules/.cache/

@@ -89,6 +89,13 @@ DATABASES = {
     )
 }
 
+# Vercel serverless has ephemeral filesystem; use /tmp for SQLite
+if os.environ.get('VERCEL'):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/db.sqlite3',
+    }
+
 
 # Password validation
 
@@ -171,7 +178,8 @@ _default_cors_origins = (
     'http://127.0.0.1:3000,'
     'http://localhost:5173,'
     'http://127.0.0.1:5173,'
-    'https://fossee-web.vercel.app'
+    'https://fossee-web.vercel.app,'
+    'https://fossee-api.vercel.app'
 )
 _cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', _default_cors_origins)
 CORS_ALLOWED_ORIGINS = [
@@ -208,6 +216,11 @@ CORS_ALLOW_HEADERS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Vercel serverless filesystem is read-only except /tmp
+if os.environ.get('VERCEL'):
+    MEDIA_ROOT = Path('/tmp/media')
+    MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 # Max upload size: 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
