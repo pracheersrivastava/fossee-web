@@ -313,7 +313,8 @@ The repository includes `sample_equipment_data.csv` with 25 records across 7 equ
 | numpy | ≥ 1.24 | Numerical computing |
 | requests | ≥ 2.28 | HTTP client for Django API |
 | reportlab | ≥ 4.0 | PDF report generation |
-| scipy | ≥ 1.10 | Smooth curve interpolation |
+| scipy | ≥ 1.10 | Smooth curve interpolation (charts) |
+| pyinstaller | ≥ 6.0 | Windows `.exe` builds (dev/CI) |
 
 ---
 
@@ -343,6 +344,7 @@ The repository includes `sample_equipment_data.csv` with 25 records across 7 equ
 |---------|-------------|
 | `pip install -r requirements.txt` | Install dependencies |
 | `python app.py` | Run the desktop application |
+| `pyinstaller ChemViz.spec --noconfirm` | Build `dist/ChemViz.exe` (Windows) |
 
 ---
 
@@ -384,7 +386,53 @@ Or connect the repo in [Render Dashboard](https://dashboard.render.com/) → **N
 - Use Render for production; Vercel config remains in `backend/vercel.json` for quick demos.
 
 ### Desktop — GitHub Releases
-- Built with **PyInstaller** (`--onefile --windowed`).
-- Download the latest `.exe` from [Releases](https://github.com/pracheersrivastava/fossee-web/releases/latest).
+- Windows `.exe` built with **PyInstaller** (`ChemViz.spec`, onefile + windowed).
+- Download: [Latest release](https://github.com/pracheersrivastava/fossee-web/releases/latest) → `ChemViz.exe`
 - Points at `https://fossee-api.onrender.com/api` by default.
 - Override with env var `CHEMVIZ_API_BASE_URL` if needed.
+
+#### Build locally (Windows)
+
+```bash
+cd desktop
+pip install -r requirements.txt
+pyinstaller ChemViz.spec --noconfirm
+```
+
+Output: `desktop/dist/ChemViz.exe`
+
+#### Auto-release on new tag (GitHub Actions)
+
+Pushing a version tag triggers `.github/workflows/release-desktop.yml`, which builds `ChemViz.exe` on `windows-latest` and attaches it to a GitHub Release.
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+Use semantic tags like `v1.0.0`, `v1.0.1`, etc. The workflow runs on any tag matching `v*`.
+
+### Keep Render API warm (cron — every 10 minutes)
+
+Render free tier sleeps after ~15 minutes idle. Ping the health endpoint every **10 minutes** so the API stays responsive.
+
+| Field | Value |
+|-------|-------|
+| **URL** | `https://fossee-api.onrender.com/api/` |
+| **Method** | `GET` |
+| **Schedule** | Every 10 minutes |
+| **Cron expression** | `*/10 * * * *` |
+
+**cron-job.org (recommended, free):**
+1. Sign up at [cron-job.org](https://cron-job.org)
+2. **Create cronjob** → Title: `fossee-api keep-alive`
+3. URL: `https://fossee-api.onrender.com/api/`
+4. Schedule: **Every 10 minutes** (or custom: `*/10 * * * *`)
+5. Save — expect HTTP 200 with JSON welcome payload
+
+**UptimeRobot (alternative):**
+- Monitor type: HTTP(s)
+- URL: `https://fossee-api.onrender.com/api/`
+- Interval: 5 minutes (free tier minimum; also keeps service warm)
+
+**GitHub Actions (optional, in-repo):** add a scheduled workflow with `cron: '*/10 * * * *'` that `curl`s the same URL. Uses Actions minutes; external cron is usually simpler.

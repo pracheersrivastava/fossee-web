@@ -12,7 +12,7 @@ venv/
 dist/
 build/
 *.egg-info/
-*.spec
+!desktop/ChemViz.spec
 
 # IDE
 .vscode/
